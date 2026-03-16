@@ -13,12 +13,12 @@
                 extend: {
                     colors: {
                         brand: {
-                            bg: '#FDFCFB',        // 奶油暖白背底
-                            surface: '#F5F2EE',   // 燕麥色區塊背景
-                            taupe: '#DBCBBD',     // 溫柔奶茶色 (裝飾色)
-                            taupeDark: '#A89787', // 質感深奶茶 (次要文字)
-                            brown: '#4A4138',     // 咖啡棕 (主文字，比純黑更柔和)
-                            card: '#FFFFFF',      // 純白卡片
+                            bg: '#FDFCFB',          // 奶油暖白背底
+                            surface: '#F5F2EE',     // 燕麥色區塊背景
+                            primary: '#E2C8BA',     // 品牌標準色
+                            primaryDark: '#B89B8D', // 搭配標準色的深色字體
+                            brown: '#4A4138',       // 咖啡棕 (主文字)
+                            card: '#FFFFFF',        // 純白卡片
                         }
                     },
                     fontFamily: {
@@ -27,6 +27,7 @@
                     boxShadow: {
                         'card': '0 8px 30px rgba(74, 65, 56, 0.04)',
                         'nav': '0 -4px 20px rgba(0, 0, 0, 0.02)',
+                        'header': '0 1px 0px rgba(74, 65, 56, 0.08)',
                     }
                 }
             }
@@ -34,17 +35,17 @@
     </script>
     <style>
         body {
-            background-color: #EFECE8; /* 外圍灰底，凸顯手機畫面 */
+            background-color: #EFECE8;
             font-family: 'Noto Sans TC', sans-serif;
             -webkit-tap-highlight-color: transparent;
             color: #4A4138;
+            overflow: hidden;
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 高清晰度真實條碼模擬，確保專櫃好掃 */
         .barcode {
-            height: 50px; /* 加高條碼 */
+            height: 50px; 
             width: 100%;
             background-image: repeating-linear-gradient(
                 to right,
@@ -54,44 +55,84 @@
                 #1A1A1A 13px, #1A1A1A 15px, transparent 15px, transparent 19px
             );
         }
-        
-        /* 溫和的漸層過渡 */
-        .fade-view { transition: opacity 0.3s ease; }
+
+        /* iOS 側滑動畫 */
+        .view-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .view-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #FDFCFB;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+            z-index: 10;
+        }
+        /* 主分頁隱藏 */
+        .view-main-hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        /* 子分頁滑入 */
+        .view-sub-ready {
+            transform: translateX(100%);
+            z-index: 30;
+        }
+        .view-sub-active {
+            transform: translateX(0);
+            z-index: 30;
+        }
+        /* 父頁面推擠 */
+        .view-parent-pushed {
+            transform: translateX(-20%);
+            opacity: 0.6;
+        }
+
+        .header-item {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
-    <!-- 手機畫面容器 -->
     <div class="relative w-full max-w-[400px] h-[100dvh] max-h-[850px] bg-brand-bg sm:rounded-[2.5rem] sm:shadow-2xl overflow-hidden flex flex-col sm:border-[8px] sm:border-white">
         
         <!-- Header -->
-        <header class="pt-12 pb-4 px-6 bg-brand-bg flex justify-between items-center z-10 sticky top-0">
-            <h1 class="text-xl font-bold tracking-widest text-brand-brown uppercase">RoanJane</h1>
-            <button class="w-10 h-10 flex items-center justify-center rounded-full bg-brand-surface text-brand-brown hover:bg-brand-taupe/30 transition">
-                <i data-lucide="bell" class="w-5 h-5 stroke-[1.5]"></i>
-            </button>
+        <header class="pt-12 pb-3 px-4 bg-brand-bg/95 backdrop-blur-md flex items-center z-50 sticky top-0 border-b border-brand-primary/20 shadow-header h-[88px] shrink-0">
+            <!-- 左側返回 -->
+            <div class="absolute left-2 z-20">
+                <button id="btn-back" onclick="goBack()" class="hidden opacity-0 flex items-center text-brand-brown hover:text-brand-primaryDark transition-all duration-300">
+                    <i data-lucide="chevron-left" class="w-8 h-8 stroke-[2]"></i>
+                    <span class="text-[16px] font-medium -ml-1">返回</span>
+                </button>
+            </div>
+            
+            <!-- 中間標題 (絕對獨立，不重疊) -->
+            <div class="relative w-full flex justify-center items-center h-10 overflow-hidden">
+                <div id="header-logo" class="header-item text-xl font-bold tracking-widest uppercase">RoanJane</div>
+                <div id="header-subtitle" class="header-item absolute translate-y-4 opacity-0 text-[17px] font-bold">分頁標題</div>
+            </div>
         </header>
 
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto no-scrollbar pb-28 px-5 pt-1">
+        <!-- View Container -->
+        <div class="view-container flex-1">
             
-            <!-- ====== 1. 首頁 (專櫃結帳模式) ====== -->
-            <section id="view-home" class="view-section fade-view opacity-100">
-                
-                <!-- 1.1 會員卡 (結帳區) -->
-                <div class="bg-brand-card rounded-[2rem] overflow-hidden shadow-card mb-6 border border-brand-taupe/20">
-                    <!-- 童裝形象圖 -->
+            <!-- ====== 1. 首頁 ====== -->
+            <section id="view-home" class="view-section overflow-y-auto no-scrollbar pb-24 px-5 pt-4">
+                <div class="bg-brand-card rounded-[2rem] overflow-hidden shadow-card mb-6 border border-brand-primary/30">
                     <div class="h-44 w-full relative">
-                        <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=800&q=80" alt="RoanJane" class="w-full h-full object-cover">
+                        <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=800&q=80" alt="" class="w-full h-full object-cover">
                         <div class="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent"></div>
                     </div>
-                    
                     <div class="px-6 pb-8 -mt-6 relative z-10 text-center">
-                        <span class="inline-block px-3 py-1 bg-brand-taupe/20 text-brand-taupeDark text-[10px] font-bold tracking-[0.2em] rounded-full mb-3 uppercase">VIP Member</span>
+                        <span class="inline-block px-3 py-1 bg-brand-primary/20 text-brand-primaryDark text-[10px] font-bold tracking-[0.2em] rounded-full mb-3 uppercase">VIP Member</span>
                         <h2 class="text-2xl font-bold text-brand-brown mb-1 tracking-widest">把O嫻</h2>
-                        <p class="text-brand-taupeDark text-xs mb-8 tracking-widest font-light">0972***106</p>
-                        
-                        <!-- 結帳條碼 (純白底色確保高對比度) -->
+                        <p class="text-brand-primaryDark text-xs mb-8 tracking-widest font-light">0972***106</p>
                         <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                             <div class="barcode mb-2"></div>
                             <p class="text-[10px] text-gray-400 tracking-[0.3em] font-mono">RJ-8839-2045</p>
@@ -99,150 +140,179 @@
                     </div>
                 </div>
 
-                <!-- 1.2 點數與優惠 (媽媽最關心的錢) -->
                 <div class="grid grid-cols-2 gap-4 mb-8">
-                    <!-- 紅利點數 -->
-                    <div class="bg-brand-card rounded-3xl p-5 shadow-card border border-brand-taupe/20 flex flex-col relative overflow-hidden">
-                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-brand-surface rounded-full opacity-50"></div>
-                        <p class="text-brand-taupeDark text-xs font-bold mb-2 z-10">可用點數</p>
+                    <div class="bg-brand-card rounded-3xl p-5 shadow-card border border-brand-primary/30 flex flex-col relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-2 z-10">
+                            <p class="text-brand-primaryDark text-xs font-bold">可用點數</p>
+                            <button onclick="openSubView('points', '點數紀錄')" class="text-brand-primaryDark">
+                                <i data-lucide="info" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                         <div class="flex items-baseline gap-1 mb-2 z-10">
                             <span class="text-4xl font-bold text-brand-brown">210</span>
-                            <span class="text-xs font-bold text-brand-taupeDark">P</span>
+                            <span class="text-xs font-bold text-brand-primaryDark">P</span>
                         </div>
-                        <span class="inline-block mt-auto text-center bg-brand-brown text-white text-[11px] font-bold py-2 rounded-xl z-10 shadow-sm">
-                            可折抵 NT$210
-                        </span>
+                        <span class="inline-block mt-auto text-center bg-brand-brown text-white text-[11px] font-bold py-2 rounded-xl z-10">可折抵 NT$210</span>
                     </div>
-
-                    <!-- VIP 權益 -->
-                    <div class="bg-brand-surface rounded-3xl p-5 shadow-card border border-brand-taupe/20 flex flex-col items-center justify-center text-center">
-                        <div class="w-10 h-10 bg-brand-taupe/30 rounded-full flex items-center justify-center mb-3 text-brand-brown">
+                    <div class="bg-brand-surface rounded-3xl p-5 shadow-card border border-brand-primary/30 flex flex-col items-center justify-center text-center">
+                        <div class="w-10 h-10 bg-brand-primary/40 rounded-full flex items-center justify-center mb-3 text-brand-brown">
                             <i data-lucide="crown" class="w-5 h-5 stroke-[2]"></i>
                         </div>
                         <p class="text-brand-brown text-[11px] font-bold tracking-widest mb-1">VIP 專屬</p>
-                        <p class="text-brand-taupeDark text-[10px] tracking-wide">結帳再享 95 折</p>
+                        <p class="text-brand-primaryDark text-[10px] tracking-wide">結帳再享 95 折</p>
                     </div>
                 </div>
-
             </section>
 
             <!-- ====== 2. 我的優惠 ====== -->
-            <section id="view-coupons" class="view-section hidden opacity-0">
-                <h2 class="text-xl font-bold text-brand-brown mb-6 px-1 tracking-widest">我的優惠券</h2>
-                
-                <!-- 頁籤 -->
-                <div class="flex gap-6 mb-6 px-2 border-b border-brand-taupe/30">
-                    <button class="pb-3 text-sm text-brand-brown border-b-2 border-brand-brown font-bold tracking-widest">可使用 (0)</button>
-                    <button class="pb-3 text-sm text-brand-taupeDark tracking-widest">已失效</button>
+            <section id="view-coupons" class="view-section view-main-hidden overflow-y-auto no-scrollbar pb-24 px-5 pt-4">
+                <div class="flex gap-6 mb-6 px-2 border-b border-brand-primary/30">
+                    <button class="pb-3 text-sm text-brand-brown border-b-2 border-brand-brown font-bold tracking-widest">可使用 (2)</button>
+                    <button class="pb-3 text-sm text-brand-primaryDark tracking-widest">已失效</button>
                 </div>
-
-                <!-- 空狀態 -->
-                <div class="flex flex-col items-center justify-center py-20 bg-brand-surface/50 rounded-3xl border border-brand-surface border-dashed">
-                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 text-brand-taupe shadow-sm">
-                        <i data-lucide="ticket-dashed" class="w-7 h-7 stroke-[1.5]"></i>
+                <div class="space-y-4">
+                    <div class="bg-brand-card rounded-2xl p-4 shadow-sm border border-brand-primary/40 flex gap-4 relative overflow-hidden">
+                        <div class="w-[72px] flex flex-col items-center justify-center border-r border-dashed border-brand-primary/50 pr-4">
+                            <span class="text-2xl font-bold text-brand-primaryDark">85</span><span class="text-[10px] text-brand-primaryDark font-bold mt-1">折</span>
+                        </div>
+                        <div class="flex-1 py-1">
+                            <h4 class="text-sm font-bold text-brand-brown mb-1">VIP 生日專屬優惠</h4>
+                            <p class="text-[10px] text-brand-primaryDark mb-3">有效期限：2026/04/30</p>
+                            <button class="text-[10px] bg-brand-brown text-white px-4 py-1.5 rounded-full font-bold">立即使用</button>
+                        </div>
                     </div>
-                    <p class="text-brand-taupeDark text-sm tracking-widest">目前沒有可用的優惠券</p>
                 </div>
             </section>
 
-            <!-- ====== 3. 消費紀錄 (極簡對帳單) ====== -->
-            <section id="view-history" class="view-section hidden opacity-0">
-                <h2 class="text-xl font-bold text-brand-brown mb-6 px-1 tracking-widest">消費紀錄</h2>
-                
-                <!-- 總覽數據 (燕麥色柔和卡片) -->
-                <div class="bg-brand-surface rounded-3xl p-6 mb-6">
-                    <div class="flex justify-between items-end mb-6">
-                        <div>
-                            <p class="text-xs text-brand-taupeDark font-bold mb-1 tracking-widest">累積消費金額</p>
-                            <p class="text-2xl font-bold text-brand-brown">$77,111</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[10px] text-brand-taupeDark font-bold mb-1 tracking-widest">購買次數</p>
-                            <p class="text-base font-bold text-brand-brown">17 <span class="text-xs">次</span></p>
-                        </div>
-                    </div>
-                    <div class="pt-4 border-t border-brand-taupe/30 flex justify-between items-center">
-                        <span class="text-xs text-brand-taupeDark tracking-widest">最近購買日期</span>
-                        <span class="text-sm text-brand-brown font-bold tracking-wider">2025/12/20</span>
-                    </div>
+            <!-- ====== 3. 消費紀錄 ====== -->
+            <section id="view-history" class="view-section view-main-hidden overflow-y-auto no-scrollbar pb-24 px-5 pt-4">
+                <div class="bg-brand-surface rounded-3xl p-6 mb-6 text-center">
+                    <p class="text-[11px] text-brand-primaryDark font-bold mb-1 tracking-widest">累積消費金額</p>
+                    <p class="text-3xl font-bold text-brand-brown tracking-tight mb-2">$77,111</p>
+                    <span class="text-[10px] px-3 py-1 bg-brand-primary/30 text-brand-brown rounded-full font-bold">累積購買 17 次</span>
                 </div>
-
-                <!-- 歷史清單 -->
-                <div class="bg-brand-card rounded-3xl p-6 shadow-card border border-brand-taupe/20">
-                    <h3 class="text-xs font-bold text-brand-taupeDark mb-4 tracking-widest">最近紀錄</h3>
-                    <div class="space-y-0">
-                        <!-- Record 1 -->
-                        <div class="flex justify-between items-center py-4 border-b border-gray-100">
-                            <span class="text-sm text-brand-brown tracking-wider">2025/12/20</span>
-                            <span class="text-sm text-brand-brown font-bold">$4,280</span>
-                        </div>
-                        <!-- Record 2 -->
-                        <div class="flex justify-between items-center py-4 border-b border-gray-100">
-                            <span class="text-sm text-brand-brown tracking-wider">2025/12/17</span>
-                            <span class="text-sm text-brand-brown font-bold">$2,638</span>
-                        </div>
+                
+                <h3 class="text-xs font-bold text-brand-primaryDark mb-4 tracking-widest px-1">最近消費紀錄</h3>
+                <div class="bg-brand-card rounded-3xl p-2 shadow-card border border-brand-primary/30">
+                    <div class="space-y-1">
+                        <button onclick="openSubView('order-detail', '消費明細')" class="w-full flex justify-between items-center p-4 hover:bg-brand-surface/50 rounded-2xl transition-colors text-left group">
+                            <div>
+                                <p class="text-sm font-bold text-brand-brown mb-1">2026/03/01</p>
+                                <p class="text-[10px] text-brand-primaryDark tracking-wider">訂單編號: 1011H2603010001</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-bold text-brand-brown">$5,626</span>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-brand-primaryDark"></i>
+                            </div>
+                        </button>
                     </div>
                 </div>
             </section>
 
             <!-- ====== 4. 專櫃資訊 ====== -->
-            <section id="view-stores" class="view-section hidden opacity-0">
-                <h2 class="text-xl font-bold text-brand-brown mb-6 px-1 tracking-widest">實體專櫃</h2>
-
-                <div class="space-y-4">
-                    <!-- Store Card -->
-                    <div class="bg-brand-card p-6 rounded-3xl shadow-card border border-brand-taupe/20">
-                        <h4 class="text-base font-bold text-brand-brown mb-3 tracking-wide">台北信義新天地 A8</h4>
-                        <p class="text-xs text-brand-taupeDark mb-6 flex items-start gap-2 leading-relaxed tracking-wider">
-                            <i data-lucide="map-pin" class="w-4 h-4 shrink-0 mt-0.5 text-brand-taupe"></i>
-                            台北市信義區松高路 12 號 4F
-                        </p>
-                        <div class="flex gap-3">
-                            <button class="flex-1 flex items-center justify-center gap-2 py-3 bg-brand-surface rounded-xl text-xs font-bold text-brand-brown hover:bg-brand-taupe/20 transition">
-                                <i data-lucide="phone" class="w-4 h-4"></i> 撥打電話
-                            </button>
-                            <button class="flex-1 flex items-center justify-center gap-2 py-3 bg-brand-brown text-white rounded-xl text-xs font-bold shadow-md hover:bg-[#3A332C] transition">
-                                <i data-lucide="navigation" class="w-4 h-4"></i> 地圖導航
-                            </button>
-                        </div>
+            <section id="view-stores" class="view-section view-main-hidden overflow-y-auto no-scrollbar pb-24 px-5 pt-4">
+                <div class="bg-brand-card p-6 rounded-3xl shadow-card border border-brand-primary/30">
+                    <h4 class="text-base font-bold text-brand-brown mb-3">台北信義新天地 A8</h4>
+                    <p class="text-xs text-brand-primaryDark mb-6 flex items-start gap-2 leading-relaxed">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-brand-primary shrink-0"></i>台北市信義區松高路 12 號 4F
+                    </p>
+                    <div class="flex gap-3">
+                        <button class="flex-1 py-3 bg-brand-surface rounded-xl text-xs font-bold">撥打電話</button>
+                        <button class="flex-1 py-3 bg-brand-brown text-white rounded-xl text-xs font-bold shadow-md">地圖導航</button>
                     </div>
                 </div>
             </section>
 
-        </main>
+            <!-- 子分頁：點數紀錄 -->
+            <section id="view-points" class="view-section view-sub-ready overflow-y-auto no-scrollbar pb-24 px-5 pt-4">
+                <div class="bg-brand-card rounded-3xl p-6 shadow-card border border-brand-primary/30 mb-6 text-center">
+                    <p class="text-xs text-brand-primaryDark font-bold mb-1 tracking-widest">目前可用點數</p>
+                    <p class="text-3xl font-bold text-brand-brown">210 <span class="text-sm font-normal text-brand-primaryDark">P</span></p>
+                </div>
+            </section>
 
-        <!-- 穩定、易按的 Bottom Navigation -->
-        <nav class="absolute bottom-0 w-full bg-brand-card border-t border-brand-surface pb-safe z-50 shadow-nav">
-            <div class="flex justify-around items-center h-[76px] pb-2 pt-1 px-2">
-                
-                <button onclick="switchTab('home')" class="nav-btn flex flex-col items-center justify-center w-[72px] gap-1.5" data-target="home">
-                    <div class="icon-bg w-10 h-8 rounded-full flex items-center justify-center bg-brand-taupe/30 transition-colors">
-                        <i data-lucide="credit-card" class="w-5 h-5 text-brand-brown stroke-[2] transition-colors nav-icon"></i>
+            <!-- 子分頁：消費明細 -->
+            <section id="view-order-detail" class="view-section view-sub-ready overflow-y-auto no-scrollbar pb-24 px-5 pt-4">
+                <div class="bg-brand-surface rounded-3xl p-6 mb-5 text-[13px] leading-relaxed">
+                    <div class="flex justify-between mb-3 pb-3 border-b border-brand-primary/20">
+                        <span class="text-brand-primaryDark font-bold tracking-widest">訂單資訊</span>
+                        <span class="text-brand-brown font-bold tracking-wider">1011H2603010001</span>
                     </div>
-                    <span class="text-[10px] text-brand-brown font-bold transition-colors nav-text">會員卡</span>
-                </button>
-
-                <button onclick="switchTab('coupons')" class="nav-btn flex flex-col items-center justify-center w-[72px] gap-1.5" data-target="coupons">
-                    <div class="icon-bg w-10 h-8 rounded-full flex items-center justify-center bg-transparent transition-colors">
-                        <i data-lucide="ticket" class="w-5 h-5 text-brand-taupeDark stroke-[1.5] transition-colors nav-icon"></i>
+                    <div class="space-y-2">
+                        <div class="flex justify-between"><span class="text-brand-primaryDark">訂單來源</span><span class="text-brand-brown">POS 新竹 SOGO</span></div>
+                        <div class="flex justify-between"><span class="text-brand-primaryDark">收件人</span><span class="text-brand-brown">陳薇喧</span></div>
+                        <div class="flex justify-between"><span class="text-brand-primaryDark">成立日期</span><span class="text-brand-brown">2026/03/01 17:00</span></div>
                     </div>
-                    <span class="text-[10px] text-brand-taupeDark font-medium transition-colors nav-text">優惠券</span>
-                </button>
+                </div>
 
-                <button onclick="switchTab('history')" class="nav-btn flex flex-col items-center justify-center w-[72px] gap-1.5" data-target="history">
-                    <div class="icon-bg w-10 h-8 rounded-full flex items-center justify-center bg-transparent transition-colors">
-                        <i data-lucide="receipt" class="w-5 h-5 text-brand-taupeDark stroke-[1.5] transition-colors nav-icon"></i>
+                <!-- 商品列表 -->
+                <div class="space-y-4 mb-8">
+                    <div class="bg-white p-4 rounded-3xl border border-gray-100 flex gap-4 items-center">
+                        <div class="w-16 h-16 bg-brand-surface rounded-2xl flex items-center justify-center overflow-hidden">
+                            <i data-lucide="shirt" class="w-8 h-8 text-brand-primaryDark stroke-[1]"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-brand-brown leading-snug mb-1">白色下擺荷葉邊長袖上衣</h4>
+                            <p class="text-[10px] text-brand-primaryDark">規格: 100 / 貨號: RJ25WTS11IV</p>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-[10px] bg-brand-surface px-2 py-0.5 rounded text-brand-brown">數量: 1</span>
+                                <span class="text-sm font-bold text-brand-brown">$1,580</span>
+                            </div>
+                        </div>
                     </div>
-                    <span class="text-[10px] text-brand-taupeDark font-medium transition-colors nav-text">紀錄</span>
-                </button>
-
-                <button onclick="switchTab('stores')" class="nav-btn flex flex-col items-center justify-center w-[72px] gap-1.5" data-target="stores">
-                    <div class="icon-bg w-10 h-8 rounded-full flex items-center justify-center bg-transparent transition-colors">
-                        <i data-lucide="store" class="w-5 h-5 text-brand-taupeDark stroke-[1.5] transition-colors nav-icon"></i>
+                    <div class="bg-white p-4 rounded-3xl border border-gray-100 flex gap-4 items-center">
+                        <div class="w-16 h-16 bg-brand-surface rounded-2xl flex items-center justify-center overflow-hidden">
+                            <i data-lucide="sparkles" class="w-8 h-8 text-brand-primaryDark stroke-[1]"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-brand-brown leading-snug mb-1">粉嫩漸層蛋糕澎澎紗裙</h4>
+                            <p class="text-[10px] text-brand-primaryDark">規格: 120 / 貨號: RJ25WSK03PK</p>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-[10px] bg-brand-surface px-2 py-0.5 rounded text-brand-brown">數量: 1</span>
+                                <span class="text-sm font-bold text-brand-brown">$2,380</span>
+                            </div>
+                        </div>
                     </div>
-                    <span class="text-[10px] text-brand-taupeDark font-medium transition-colors nav-text">專櫃</span>
-                </button>
+                </div>
 
+                <!-- 價格對帳 -->
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-brand-primary/20 space-y-3 mb-12">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-brand-primaryDark font-bold">商品原價總計</span>
+                        <span class="text-brand-brown font-bold">$6,840</span>
+                    </div>
+                    <div class="flex justify-between text-xs text-brand-primaryDark">
+                        <span class="font-bold">紅利折抵 / 滿額優惠</span>
+                        <span class="font-bold">- $1,214</span>
+                    </div>
+                    <div class="pt-4 border-t border-brand-primary/30 flex justify-between items-center">
+                        <span class="text-sm font-bold text-brand-brown tracking-widest uppercase">實際支付金額</span>
+                        <span class="text-2xl font-bold text-brand-brown tracking-tighter">$5,626</span>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Bottom Nav -->
+        <nav class="absolute bottom-0 w-full bg-brand-card border-t border-brand-surface pb-safe z-40 shadow-nav">
+            <div class="flex justify-around items-center h-[72px] pb-1 pt-1 px-2">
+                <button onclick="switchTab('home')" class="nav-btn flex flex-col items-center justify-center w-[72px] gap-1" data-target="home">
+                    <div class="icon-bg w-10 h-7 rounded-full flex items-center justify-center bg-brand-primary/40 transition-colors"><i data-lucide="credit-card" class="w-5 h-5 text-brand-brown stroke-[2] nav-icon"></i></div>
+                    <span class="text-[10px] text-brand-brown font-bold nav-text">會員卡</span>
+                </button>
+                <button onclick="switchTab('coupons')" class="nav-btn flex flex-col items-center justify-center w-[72px] gap-1" data-target="coupons">
+                    <div class="icon-bg w-10 h-7 rounded-full flex items-center justify-center bg-transparent transition-colors"><i data-lucide="ticket" class="w-5 h-5 text-brand-primaryDark stroke-[1.5] nav-icon"></i></div>
+                    <span class="text-[10px] text-brand-primaryDark font-medium nav-text">優惠券</span>
+                </button>
+                <button onclick="switchTab('history')" class="nav-btn flex flex-col items-center justify-center w-[72px] gap-1" data-target="history">
+                    <div class="icon-bg w-10 h-7 rounded-full flex items-center justify-center bg-transparent transition-colors"><i data-lucide="receipt" class="w-5 h-5 text-brand-primaryDark stroke-[1.5] nav-icon"></i></div>
+                    <span class="text-[10px] text-brand-primaryDark font-medium nav-text">紀錄</span>
+                </button>
+                <button onclick="switchTab('stores')" class="nav-btn flex flex-col items-center justify-center w-[72px] gap-1" data-target="stores">
+                    <div class="icon-bg w-10 h-7 rounded-full flex items-center justify-center bg-transparent transition-colors"><i data-lucide="store" class="w-5 h-5 text-brand-primaryDark stroke-[1.5] nav-icon"></i></div>
+                    <span class="text-[10px] text-brand-primaryDark font-medium nav-text">專櫃</span>
+                </button>
             </div>
         </nav>
     </div>
@@ -250,42 +320,99 @@
     <script>
         lucide.createIcons();
 
+        let currentBaseTab = 'home';
+        let isSubViewOpen = false;
+        
+        const headerLogo = document.getElementById('header-logo');
+        const headerSubtitle = document.getElementById('header-subtitle');
+        const btnBack = document.getElementById('btn-back');
+
         function switchTab(tabId) {
-            // 隱藏所有
+            if(isSubViewOpen) return;
+            currentBaseTab = tabId;
             document.querySelectorAll('.view-section').forEach(el => {
-                el.classList.add('hidden');
-                el.classList.remove('opacity-100');
-                el.classList.add('opacity-0');
+                if(!el.id.includes('points') && !el.id.includes('detail')) {
+                    if(el.id === `view-${tabId}`) {
+                        el.classList.remove('view-main-hidden');
+                        el.scrollTop = 0;
+                    } else { el.classList.add('view-main-hidden'); }
+                }
+            });
+            updateNavStyles(tabId);
+        }
+
+        function openSubView(viewId, title) {
+            isSubViewOpen = true;
+            const subView = document.getElementById(`view-${viewId}`);
+            const parentView = document.getElementById(`view-${currentBaseTab}`);
+
+            parentView.classList.add('view-parent-pushed');
+            subView.classList.remove('view-sub-ready');
+            subView.classList.add('view-sub-active');
+            subView.scrollTop = 0;
+
+            // Header 動畫切換 (確保不重疊)
+            headerLogo.classList.add('opacity-0', 'translate-y-[-10px]');
+            setTimeout(() => {
+                headerLogo.style.display = 'none'; // 徹底移除
+                headerSubtitle.innerText = title;
+                headerSubtitle.classList.remove('opacity-0');
+                headerSubtitle.classList.add('opacity-100', 'translate-y-0');
+            }, 150);
+            
+            btnBack.classList.remove('hidden');
+            setTimeout(() => btnBack.classList.add('opacity-100'), 10);
+        }
+
+        function goBack() {
+            const subViews = ['view-points', 'view-order-detail'];
+            subViews.forEach(id => {
+                const el = document.getElementById(id);
+                if(el.classList.contains('view-sub-active')) {
+                    el.classList.remove('view-sub-active');
+                    el.classList.add('view-sub-ready');
+                }
             });
 
-            // 顯示目標
-            const targetView = document.getElementById(`view-${tabId}`);
-            targetView.classList.remove('hidden');
-            setTimeout(() => {
-                targetView.classList.remove('opacity-0');
-                targetView.classList.add('opacity-100');
-            }, 10);
+            const parentView = document.getElementById(`view-${currentBaseTab}`);
+            parentView.classList.remove('view-parent-pushed');
 
-            // 更新導航列狀態 (加入膠囊底色增強視覺辨識度)
+            // Header 恢復 LOGO
+            headerSubtitle.classList.remove('opacity-100', 'translate-y-0');
+            headerSubtitle.classList.add('opacity-0', 'translate-y-4');
+            
+            setTimeout(() => {
+                headerLogo.style.display = 'block';
+                setTimeout(() => {
+                    headerLogo.classList.remove('opacity-0', 'translate-y-[-10px]');
+                    headerLogo.classList.add('opacity-100');
+                }, 10);
+            }, 150);
+            
+            btnBack.classList.remove('opacity-100');
+            setTimeout(() => btnBack.classList.add('hidden'), 300);
+            
+            isSubViewOpen = false;
+        }
+
+        function updateNavStyles(activeTarget) {
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 const iconBg = btn.querySelector('.icon-bg');
                 const icon = btn.querySelector('.nav-icon');
                 const text = btn.querySelector('.nav-text');
                 
-                if (btn.dataset.target === tabId) {
-                    iconBg.classList.add('bg-brand-taupe/30');
-                    iconBg.classList.remove('bg-transparent');
-                    icon.classList.remove('text-brand-taupeDark', 'stroke-[1.5]');
+                if (btn.dataset.target === activeTarget) {
+                    iconBg.classList.add('bg-brand-primary/40');
+                    icon.classList.remove('text-brand-primaryDark', 'stroke-[1.5]');
                     icon.classList.add('text-brand-brown', 'stroke-[2]');
-                    text.classList.remove('text-brand-taupeDark', 'font-medium');
+                    text.classList.remove('text-brand-primaryDark', 'font-medium');
                     text.classList.add('text-brand-brown', 'font-bold');
                 } else {
-                    iconBg.classList.remove('bg-brand-taupe/30');
-                    iconBg.classList.add('bg-transparent');
+                    iconBg.classList.remove('bg-brand-primary/40');
                     icon.classList.remove('text-brand-brown', 'stroke-[2]');
-                    icon.classList.add('text-brand-taupeDark', 'stroke-[1.5]');
+                    icon.classList.add('text-brand-primaryDark', 'stroke-[1.5]');
                     text.classList.remove('text-brand-brown', 'font-bold');
-                    text.classList.add('text-brand-taupeDark', 'font-medium');
+                    text.classList.add('text-brand-primaryDark', 'font-medium');
                 }
             });
         }
