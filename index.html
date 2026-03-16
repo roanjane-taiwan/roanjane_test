@@ -2,419 +2,293 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RoanJane Member Center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RoanJane 會員中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            bg: '#FDFCFB',        // 奶油暖白背底
+                            surface: '#F5F2EE',   // 燕麥色區塊背景
+                            taupe: '#DBCBBD',     // 溫柔奶茶色 (裝飾色)
+                            taupeDark: '#A89787', // 質感深奶茶 (次要文字)
+                            brown: '#4A4138',     // 咖啡棕 (主文字，比純黑更柔和)
+                            card: '#FFFFFF',      // 純白卡片
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 8px 30px rgba(74, 65, 56, 0.04)',
+                        'nav': '0 -4px 20px rgba(0, 0, 0, 0.02)',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root { 
-            --brand-vip: #E2C8BA; 
-            --brand-general: #333333; 
-            --current-theme: #333333; 
-            --bg-color: #f4f4f4; 
-            --card-bg: #ffffff;
-            --text-main: #222222;
-            --text-sub: #666666;
-            --text-hint: #999999;
+        body {
+            background-color: #EFECE8; /* 外圍灰底，凸顯手機畫面 */
+            font-family: 'Noto Sans TC', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            color: #4A4138;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* 高清晰度真實條碼模擬，確保專櫃好掃 */
+        .barcode {
+            height: 50px; /* 加高條碼 */
+            width: 100%;
+            background-image: repeating-linear-gradient(
+                to right,
+                #1A1A1A 0, #1A1A1A 2px, transparent 2px, transparent 4px,
+                #1A1A1A 4px, #1A1A1A 5px, transparent 5px, transparent 8px,
+                #1A1A1A 8px, #1A1A1A 11px, transparent 11px, transparent 13px,
+                #1A1A1A 13px, #1A1A1A 15px, transparent 15px, transparent 19px
+            );
         }
         
-        body { 
-                        font-family: 'Noto Sans TC', sans-serif; 
-            margin:0; 
-            display:flex; 
-            flex-direction:column; 
-            align-items:center; 
-            min-height:100vh; 
-            color: var(--text-main); 
-        }
-        
-        ::-webkit-scrollbar { width: 0; background: transparent; }
-
-        .container { width: 100%; max-width: 500px; padding: 0 20px 40px 20px; box-sizing: border-box; position: relative; z-index: 2; }
-
-        /* 登入框 */
-        #searchBox { 
-            background: rgba(255, 255, 255, 0.95); /* 稍微帶點透明感，透出背景 */
-            margin-top: 100px; 
-            border-radius: 30px; 
-            padding: 40px 25px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
-            text-align: center; 
-        }
-        .brand-logo-main { max-width: 140px; margin: 0 auto 15px auto; display: block; }
-        .login-title { font-weight: 700; font-size: 12px; letter-spacing: 2px; color: var(--text-hint); margin-bottom: 30px; display: block; }
-        .form-input { display: block; width: 100%; max-width: 400px; margin: 0 auto 20px auto; padding: 14px; border: 1px solid #ddd; border-radius: 12px; font-size: 16px; box-sizing: border-box; background: #fff; }
-        
-        /* 登入按鈕改為黑色 */
-        .btn-submit { 
-            display: block; width: 100%; max-width: 400px; margin: 0 auto; 
-            padding: 16px; background: #000000; color: white; border: none; 
-            border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 700; 
-            letter-spacing: 4px; box-sizing: border-box; 
-        }
-        
-        /* 結果頁面背景設為灰底，方便閱讀資料 */
-        #resultSection { display: none; margin-top: 20px; width: 100%; }
-
-        /* 會員卡 */
-        .card-container { width: 100%; border-radius: 20px; overflow: hidden; background: var(--card-bg); box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 15px; }
-        .card-banner img { width: 100%; display: block; }
-        .card-info { padding: 25px 20px; text-align: center; }
-        #cardLevel { font-weight: 700; color: var(--current-theme); margin-bottom: 8px; font-size: 16px; letter-spacing: 1px; }
-        #cardName { font-size: 18px; font-weight: 700; margin-bottom: 5px; color: var(--text-main); }
-        #cardPhoneDisplay { font-size: 14px; color: var(--text-sub); font-weight: 500; }
-
-        /* 進度條 */
-        #upgradeSection { padding: 0 25px 25px 25px; background: var(--card-bg); }
-        .progress-header { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-sub); margin-bottom: 10px; font-weight: 700; }
-        .progress-bar-bg { background: #eeeeee; height: 10px; border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
-        .progress-bar-fill { background: var(--current-theme); height: 100%; width: 0%; transition: width 1s ease-out; }
-        .upgrade-hint { font-size: 12px; color: var(--text-hint); text-align: center; line-height: 1.6; font-weight: 500; }
-
-        /* 紅利卡片 */
-        .points-card {
-            background: #fff; border-radius: 20px; padding: 22px 25px; margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-            display: flex; justify-content: space-between; align-items: stretch; cursor: pointer;
-        }
-        .points-left .points-label { color: var(--text-sub); font-size: 14px; margin-bottom: 8px; display: block; font-weight: 700; }
-        .points-left .points-value { font-size: 32px; font-weight: 900; color: var(--current-theme); line-height: 1; }
-        .points-left .points-unit { font-size: 16px; margin-left: 4px; color: var(--text-hint); font-weight: 700; }
-        .points-right { text-align: right; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; }
-        .cash-badge { background: var(--current-theme); color: white; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 700; letter-spacing: 1px; }
-        .history-link-text { color: var(--text-hint); font-size: 13px; display: flex; align-items: center; justify-content: flex-end; font-weight: 700; }
-
-        /* VIP Banner */
-        .vip-benefit { background: var(--brand-vip); color: #444; padding: 15px; text-align: center; border-radius: 15px; margin-bottom: 15px; font-size: 14px; font-weight: 700; display: none; }
-
-        /* 資訊區塊 */
-        .info-card { background: var(--card-bg); border-radius: 20px; padding: 25px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        .section-title { font-weight: 900; margin-bottom: 20px; border-left: 5px solid var(--current-theme); padding-left: 12px; font-size: 17px; }
-        .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 15px; font-weight: 500; }
-        .data-row { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #f9f9f9; padding-bottom: 8px; font-size: 16px; }
-        .data-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-
-        /* 點數頁面 */
-        #pointsPage { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; flex-direction: column; overflow-y: auto; }
-        .page-header { padding: 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #f5f5f5; position: sticky; top: 0; background: white; z-index: 10; }
-        .page-header h2 { margin: 0; font-size: 18px; color: var(--text-main); flex-grow: 1; text-align: center; font-weight: 900; }
-        .points-summary-box { background: #fafafa; padding: 45px 20px; text-align: center; border-bottom: 10px solid #f0f0f0; }
-        .summary-label { font-size: 14px; color: var(--text-sub); margin-bottom: 12px; display: block; font-weight: 700; }
-        .summary-value { font-size: 42px; font-weight: 900; color: var(--current-theme); }
-        .points-list-container { padding: 0 20px 50px 20px; }
-        .points-history-row { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; border-bottom: 1px solid #eeeeee; }
-        .p-amount { font-size: 20px; font-weight: 900; }
-        .p-plus { color: #d4a2a2; }
-        .p-minus { color: #888; }
-
-        #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
-        .spinner { border: 4px solid #eee; border-top: 4px solid #333; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .reset-btn { background: #fff; border: 1.5px solid #ddd; color: #666; padding: 12px; border-radius: 12px; margin-top: 20px; width: 100%; cursor: pointer; font-size: 14px; font-weight: 700; }
-/* 移除最近消費紀錄最後一筆的分隔線 */
-.history-item:last-child {
-    border-bottom: none;
-}
-/* 優惠券區域 */
-        .section-title { font-weight: 900; margin: 12px 0 15px 0; border-left: 5px solid var(--current-theme); padding-left: 12px; font-size: 17px; }
-        .coupon-item { background: #fff; border-radius: 15px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-        .coupon-img { width: 100%; height: 140px; object-fit: cover; background: #eee; }
-        .coupon-body { padding: 15px; position: relative; }
-        .coupon-name { font-size: 16px; font-weight: 700; margin-bottom: 5px; color: #333; }
-        .coupon-date { font-size: 12px; color: #e74c3c; font-weight: 500; margin-bottom: 8px; }
-        .coupon-terms { font-size: 12px; color: #999; line-height: 1.4; }
-        .btn-redeem { margin-top: 12px; background: var(--current-theme); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 700; width: 100%; cursor: pointer; }
-
-        .info-card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        .data-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f9f9f9; }
-        .data-row:last-child { border-bottom: none; }
-
-        #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; justify-content: center; align-items: center; }
-        .spinner { border: 4px solid #eee; border-top: 4px solid #333; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .reset-btn { background: #fff; border: 1.5px solid #ddd; color: #666; padding: 12px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 700; margin-top: 10px; }
+        /* 溫和的漸層過渡 */
+        .fade-view { transition: opacity 0.3s ease; }
     </style>
 </head>
-<body>
+<body class="flex items-center justify-center min-h-screen">
 
-    <div id="loadingOverlay">
-        <div class="spinner"></div>
-    </div>
+    <!-- 手機畫面容器 -->
+    <div class="relative w-full max-w-[400px] h-[100dvh] max-h-[850px] bg-brand-bg sm:rounded-[2.5rem] sm:shadow-2xl overflow-hidden flex flex-col sm:border-[8px] sm:border-white">
+        
+        <!-- Header -->
+        <header class="pt-12 pb-4 px-6 bg-brand-bg flex justify-between items-center z-10 sticky top-0">
+            <h1 class="text-xl font-bold tracking-widest text-brand-brown uppercase">RoanJane</h1>
+            <button class="w-10 h-10 flex items-center justify-center rounded-full bg-brand-surface text-brand-brown hover:bg-brand-taupe/30 transition">
+                <i data-lucide="bell" class="w-5 h-5 stroke-[1.5]"></i>
+            </button>
+        </header>
 
-    <div class="container" id="mainContainer">
-        <!-- 登入框 -->
-        <div id="searchBox">
-            <img src="https://roanjane.co.kr/web/upload/appfiles/ZaReJam3QiELznoZeGGkMG/99984422111db912a252b5d304a4aa1c.png" class="brand-logo-main">
-            <span class="login-title">MEMBER LOGIN</span>
-            <input type="tel" id="phoneInput" class="form-input" placeholder="請輸入手機號碼" maxlength="10">
-            <button class="btn-submit" onclick="doSearch()">登入</button>
-        </div>        
-
-        <!-- 會員結果 -->
-        <div id="resultSection">
-            <div class="card-container">
-                <div class="card-banner"><img id="bannerImg" src=""></div>
-                <div class="card-info">
-                    <div id="cardLevel"></div>
-                    <div id="cardName"></div>
-                    <div id="cardPhoneDisplay"></div>
-                </div>
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto no-scrollbar pb-28 px-5 pt-1">
+            
+            <!-- ====== 1. 首頁 (專櫃結帳模式) ====== -->
+            <section id="view-home" class="view-section fade-view opacity-100">
                 
-                <div id="upgradeSection">
-                    <div class="progress-header">
-                        <span>升級 VIP 進度</span>
-                        <span><span id="currentTotalText">$0</span> / $8,000</span>
+                <!-- 1.1 會員卡 (結帳區) -->
+                <div class="bg-brand-card rounded-[2rem] overflow-hidden shadow-card mb-6 border border-brand-taupe/20">
+                    <!-- 童裝形象圖 -->
+                    <div class="h-44 w-full relative">
+                        <img src="https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=800&q=80" alt="RoanJane" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent"></div>
                     </div>
-                    <div class="progress-bar-bg">
-                        <div id="progressBar" class="progress-bar-fill"></div>
+                    
+                    <div class="px-6 pb-8 -mt-6 relative z-10 text-center">
+                        <span class="inline-block px-3 py-1 bg-brand-taupe/20 text-brand-taupeDark text-[10px] font-bold tracking-[0.2em] rounded-full mb-3 uppercase">VIP Member</span>
+                        <h2 class="text-2xl font-bold text-brand-brown mb-1 tracking-widest">把O嫻</h2>
+                        <p class="text-brand-taupeDark text-xs mb-8 tracking-widest font-light">0972***106</p>
+                        
+                        <!-- 結帳條碼 (純白底色確保高對比度) -->
+                        <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                            <div class="barcode mb-2"></div>
+                            <p class="text-[10px] text-gray-400 tracking-[0.3em] font-mono">RJ-8839-2045</p>
+                        </div>
                     </div>
-                    <div class="upgrade-hint">累積滿 $8,000 或單筆滿 $5,000 即可升等</div>
                 </div>
 
-                <div style="padding:20px; background:#fff; text-align:center; border-top:1px dashed #ddd;">
-                    <svg id="barcode"></svg>
+                <!-- 1.2 點數與優惠 (媽媽最關心的錢) -->
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <!-- 紅利點數 -->
+                    <div class="bg-brand-card rounded-3xl p-5 shadow-card border border-brand-taupe/20 flex flex-col relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-brand-surface rounded-full opacity-50"></div>
+                        <p class="text-brand-taupeDark text-xs font-bold mb-2 z-10">可用點數</p>
+                        <div class="flex items-baseline gap-1 mb-2 z-10">
+                            <span class="text-4xl font-bold text-brand-brown">210</span>
+                            <span class="text-xs font-bold text-brand-taupeDark">P</span>
+                        </div>
+                        <span class="inline-block mt-auto text-center bg-brand-brown text-white text-[11px] font-bold py-2 rounded-xl z-10 shadow-sm">
+                            可折抵 NT$210
+                        </span>
+                    </div>
+
+                    <!-- VIP 權益 -->
+                    <div class="bg-brand-surface rounded-3xl p-5 shadow-card border border-brand-taupe/20 flex flex-col items-center justify-center text-center">
+                        <div class="w-10 h-10 bg-brand-taupe/30 rounded-full flex items-center justify-center mb-3 text-brand-brown">
+                            <i data-lucide="crown" class="w-5 h-5 stroke-[2]"></i>
+                        </div>
+                        <p class="text-brand-brown text-[11px] font-bold tracking-widest mb-1">VIP 專屬</p>
+                        <p class="text-brand-taupeDark text-[10px] tracking-wide">結帳再享 95 折</p>
+                    </div>
                 </div>
-            </div>
 
-            <div class="points-card" onclick="openPointsPage()">
-                <div class="points-left">
-                    <span class="points-label">可用紅利點數</span>
-                    <div class="points-value"><span id="pointsValue">0</span><span class="points-unit">P</span></div>
+            </section>
+
+            <!-- ====== 2. 我的優惠 ====== -->
+            <section id="view-coupons" class="view-section hidden opacity-0">
+                <h2 class="text-xl font-bold text-brand-brown mb-6 px-1 tracking-widest">我的優惠券</h2>
+                
+                <!-- 頁籤 -->
+                <div class="flex gap-6 mb-6 px-2 border-b border-brand-taupe/30">
+                    <button class="pb-3 text-sm text-brand-brown border-b-2 border-brand-brown font-bold tracking-widest">可使用 (0)</button>
+                    <button class="pb-3 text-sm text-brand-taupeDark tracking-widest">已失效</button>
                 </div>
-                <div class="points-right">
-                    <div class="cash-badge">折抵 NT$<span id="cashValue">0</span></div>
-                    <div class="history-link-text">點數紀錄 <i class="fas fa-chevron-right" style="margin-left:5px"></i></div>
+
+                <!-- 空狀態 -->
+                <div class="flex flex-col items-center justify-center py-20 bg-brand-surface/50 rounded-3xl border border-brand-surface border-dashed">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 text-brand-taupe shadow-sm">
+                        <i data-lucide="ticket-dashed" class="w-7 h-7 stroke-[1.5]"></i>
+                    </div>
+                    <p class="text-brand-taupeDark text-sm tracking-widest">目前沒有可用的優惠券</p>
                 </div>
-            </div>
+            </section>
 
-            <div class="vip-benefit" id="vipBenefit">
-                <i class="fas fa-crown"></i> VIP 專屬：消費再享 95 折優惠
-            </div>
-<!-- 優惠券區 -->
-            <div class="section-title">我的優惠券</div>
-            <div id="couponContainer">
-                <div style="text-align:center; color:#999; padding:20px;">尚無可用優惠券</div>
-            </div>
+            <!-- ====== 3. 消費紀錄 (極簡對帳單) ====== -->
+            <section id="view-history" class="view-section hidden opacity-0">
+                <h2 class="text-xl font-bold text-brand-brown mb-6 px-1 tracking-widest">消費紀錄</h2>
+                
+                <!-- 總覽數據 (燕麥色柔和卡片) -->
+                <div class="bg-brand-surface rounded-3xl p-6 mb-6">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <p class="text-xs text-brand-taupeDark font-bold mb-1 tracking-widest">累積消費金額</p>
+                            <p class="text-2xl font-bold text-brand-brown">$77,111</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-brand-taupeDark font-bold mb-1 tracking-widest">購買次數</p>
+                            <p class="text-base font-bold text-brand-brown">17 <span class="text-xs">次</span></p>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-brand-taupe/30 flex justify-between items-center">
+                        <span class="text-xs text-brand-taupeDark tracking-widest">最近購買日期</span>
+                        <span class="text-sm text-brand-brown font-bold tracking-wider">2025/12/20</span>
+                    </div>
+                </div>
 
-            <div class="info-card" id="historySection" style="display:none;">
-                <div class="section-title">最近消費紀錄</div>
-                <div id="historyList"></div>
+                <!-- 歷史清單 -->
+                <div class="bg-brand-card rounded-3xl p-6 shadow-card border border-brand-taupe/20">
+                    <h3 class="text-xs font-bold text-brand-taupeDark mb-4 tracking-widest">最近紀錄</h3>
+                    <div class="space-y-0">
+                        <!-- Record 1 -->
+                        <div class="flex justify-between items-center py-4 border-b border-gray-100">
+                            <span class="text-sm text-brand-brown tracking-wider">2025/12/20</span>
+                            <span class="text-sm text-brand-brown font-bold">$4,280</span>
+                        </div>
+                        <!-- Record 2 -->
+                        <div class="flex justify-between items-center py-4 border-b border-gray-100">
+                            <span class="text-sm text-brand-brown tracking-wider">2025/12/17</span>
+                            <span class="text-sm text-brand-brown font-bold">$2,638</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====== 4. 專櫃資訊 ====== -->
+            <section id="view-stores" class="view-section hidden opacity-0">
+                <h2 class="text-xl font-bold text-brand-brown mb-6 px-1 tracking-widest">實體專櫃</h2>
+
+                <div class="space-y-4">
+                    <!-- Store Card -->
+                    <div class="bg-brand-card p-6 rounded-3xl shadow-card border border-brand-taupe/20">
+                        <h4 class="text-base font-bold text-brand-brown mb-3 tracking-wide">台北信義新天地 A8</h4>
+                        <p class="text-xs text-brand-taupeDark mb-6 flex items-start gap-2 leading-relaxed tracking-wider">
+                            <i data-lucide="map-pin" class="w-4 h-4 shrink-0 mt-0.5 text-brand-taupe"></i>
+                            台北市信義區松高路 12 號 4F
+                        </p>
+                        <div class="flex gap-3">
+                            <button class="flex-1 flex items-center justify-center gap-2 py-3 bg-brand-surface rounded-xl text-xs font-bold text-brand-brown hover:bg-brand-taupe/20 transition">
+                                <i data-lucide="phone" class="w-4 h-4"></i> 撥打電話
+                            </button>
+                            <button class="flex-1 flex items-center justify-center gap-2 py-3 bg-brand-brown text-white rounded-xl text-xs font-bold shadow-md hover:bg-[#3A332C] transition">
+                                <i data-lucide="navigation" class="w-4 h-4"></i> 地圖導航
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- 穩定、易按的 Bottom Navigation -->
+        <nav class="absolute bottom-0 w-full bg-brand-card border-t border-brand-surface pb-safe z-50 shadow-nav">
+            <div class="flex justify-around items-center h-[76px] pb-2 pt-1 px-2">
+                
+                <button onclick="switchTab('home')" class="nav-btn flex flex-col items-center justify-center w-[72px] gap-1.5" data-target="home">
+                    <div class="icon-bg w-10 h-8 rounded-full flex items-center justify-center bg-brand-taupe/30 transition-colors">
+                        <i data-lucide="credit-card" class="w-5 h-5 text-brand-brown stroke-[2] transition-colors nav-icon"></i>
+                    </div>
+                    <span class="text-[10px] text-brand-brown font-bold transition-colors nav-text">會員卡</span>
+                </button>
+
+                <button onclick="switchTab('coupons')" class="nav-btn flex flex-col items-center justify-center w-[72px] gap-1.5" data-target="coupons">
+                    <div class="icon-bg w-10 h-8 rounded-full flex items-center justify-center bg-transparent transition-colors">
+                        <i data-lucide="ticket" class="w-5 h-5 text-brand-taupeDark stroke-[1.5] transition-colors nav-icon"></i>
+                    </div>
+                    <span class="text-[10px] text-brand-taupeDark font-medium transition-colors nav-text">優惠券</span>
+                </button>
+
+                <button onclick="switchTab('history')" class="nav-btn flex flex-col items-center justify-center w-[72px] gap-1.5" data-target="history">
+                    <div class="icon-bg w-10 h-8 rounded-full flex items-center justify-center bg-transparent transition-colors">
+                        <i data-lucide="receipt" class="w-5 h-5 text-brand-taupeDark stroke-[1.5] transition-colors nav-icon"></i>
+                    </div>
+                    <span class="text-[10px] text-brand-taupeDark font-medium transition-colors nav-text">紀錄</span>
+                </button>
+
+                <button onclick="switchTab('stores')" class="nav-btn flex flex-col items-center justify-center w-[72px] gap-1.5" data-target="stores">
+                    <div class="icon-bg w-10 h-8 rounded-full flex items-center justify-center bg-transparent transition-colors">
+                        <i data-lucide="store" class="w-5 h-5 text-brand-taupeDark stroke-[1.5] transition-colors nav-icon"></i>
+                    </div>
+                    <span class="text-[10px] text-brand-taupeDark font-medium transition-colors nav-text">專櫃</span>
+                </button>
+
             </div>
-
-            <div class="info-card">
-                <div class="data-row"><span>累積消費金額</span><span id="infoTotal"></span></div>
-                <div class="data-row"><span>最近購買日期</span><span id="infoDate"></span></div>
-                <div class="data-row"><span>專櫃購買次數</span><span id="infoCount"></span></div>
-            </div>
-
-            <!-- 重新查詢按鈕 -->
-            <button class="reset-btn" onclick="backToLogin()">重新查詢</button>
-        </div>
-    </div>
-
-    <!-- 點數分頁 -->
-    <div id="pointsPage">
-        <div class="page-header">
-            <div style="width: 50px;"></div>
-            <h2>點數紀錄細節</h2>
-            <div style="padding: 10px; cursor: pointer;" onclick="closePointsPage()"><i class="fas fa-times"></i></div>
-        </div>
-        <div class="points-summary-box">
-            <span class="summary-label">目前帳戶剩餘</span>
-            <div class="summary-value"><span id="summaryPoints">0</span><span style="font-size:16px; margin-left:5px">P</span></div>
-        </div>
-        <div class="points-list-container" id="pointsList"></div>
+        </nav>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxjEmTxhX93sZznzPKQVtIt4hLp0UdOCXO5G4k0pIDefRpe9BvIDXJDSntmJtSansVY/exec"; 
-        const IMAGES = {
-            general: "https://cdn-next.cybassets.com/media/W1siZiIsIjI5MDMyL2F0dGFjaGVkX3Bob3Rvcy8xNzY0NzMwNTExX-WPsOeBo-eNqOWutue4veS7o-eQhiAoNCkuanBnLmpwZWciXV0.jpeg?sha=b576ac7dd314aad4",
-            vip: "https://cdn-next.cybassets.com/media/W1siZiIsIjI5MDMyL2F0dGFjaGVkX3Bob3Rvcy8xNzY0NzI3MzkyX-WPsOeBo-eNqOWutue4veS7o-eQhiAoMykuanBnLmpwZWciXV0.jpeg?sha=a7ac4c6727a071ad"
-        };
-        
-        let memberData = null;
+        lucide.createIcons();
 
-        function showLoading() { document.getElementById('loadingOverlay').style.display = 'flex'; }
-        function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
+        function switchTab(tabId) {
+            // 隱藏所有
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('opacity-100');
+                el.classList.add('opacity-0');
+            });
 
-        let currentUserPhone = ""; // 確保這行在 <script> 最上方
+            // 顯示目標
+            const targetView = document.getElementById(`view-${tabId}`);
+            targetView.classList.remove('hidden');
+            setTimeout(() => {
+                targetView.classList.remove('opacity-0');
+                targetView.classList.add('opacity-100');
+            }, 10);
 
-function doSearch() {
-    var phone = document.getElementById('phoneInput').value.trim();
-    if(phone.length < 9) return;
-    
-    // ★ 關鍵：這裡一定要存下來，後面的 handleRedeem 才會用到它
-    currentUserPhone = phone; 
-
-    showLoading();
-    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'member_login', phone: phone }) })
-            .then(res => res.json())
-            .then(res => {
-                hideLoading();
-                if(res.status === 'success') {
-                    memberData = res.data;
-                    render(res.data, phone);
-                } else { Swal.fire('提示', res.message, 'info'); }
-            })
-            .catch(err => { hideLoading(); });
-        }
-
-        function backToLogin() {
-            // 切換回登入畫面
-            document.getElementById('resultSection').style.display = 'none';
-            document.getElementById('searchBox').style.display = 'block';
-                       document.getElementById('phoneInput').value = '';
-        }
-
-        function openPointsPage() {
-            document.getElementById('pointsPage').style.display = 'flex';
-            document.getElementById('summaryPoints').innerText = parseInt(memberData.points).toLocaleString();
-            const listContainer = document.getElementById('pointsList');
-            listContainer.innerHTML = '';
-            memberData.pointsHistory.forEach(item => {
-                const amount = parseFloat(item.amount);
-                listContainer.innerHTML += `
-                    <div class="points-history-row">
-                        <div class="p-info">
-                            <span style="font-weight:700; font-size:16px">${amount >= 0 ? '獲得紅利' : '折抵紅利'}</span>
-                            <span style="font-size:12px; color:#aaa; display:block">${item.date}</span>
-                        </div>
-                        <div class="p-amount ${amount >= 0 ? 'p-plus' : 'p-minus'}">
-                            ${amount >= 0 ? '+' : ''}${amount.toLocaleString()}
-                        </div>
-                    </div>`;
+            // 更新導航列狀態 (加入膠囊底色增強視覺辨識度)
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                const iconBg = btn.querySelector('.icon-bg');
+                const icon = btn.querySelector('.nav-icon');
+                const text = btn.querySelector('.nav-text');
+                
+                if (btn.dataset.target === tabId) {
+                    iconBg.classList.add('bg-brand-taupe/30');
+                    iconBg.classList.remove('bg-transparent');
+                    icon.classList.remove('text-brand-taupeDark', 'stroke-[1.5]');
+                    icon.classList.add('text-brand-brown', 'stroke-[2]');
+                    text.classList.remove('text-brand-taupeDark', 'font-medium');
+                    text.classList.add('text-brand-brown', 'font-bold');
+                } else {
+                    iconBg.classList.remove('bg-brand-taupe/30');
+                    iconBg.classList.add('bg-transparent');
+                    icon.classList.remove('text-brand-brown', 'stroke-[2]');
+                    icon.classList.add('text-brand-taupeDark', 'stroke-[1.5]');
+                    text.classList.remove('text-brand-brown', 'font-bold');
+                    text.classList.add('text-brand-taupeDark', 'font-medium');
+                }
             });
         }
-
-        function closePointsPage() { document.getElementById('pointsPage').style.display = 'none'; }
-
-        function render(data, phone) {
-    document.getElementById('searchBox').style.display = 'none';
-    document.getElementById('resultSection').style.display = 'block';
-    
-    // 進入結果頁後背景變淡
-    document.body.style.backgroundImage = "none";
-    document.body.style.backgroundColor = "#f4f4f4";
-
-    const themeColor = data.isVip ? '#E2C8BA' : '#333333';
-    document.documentElement.style.setProperty('--current-theme', themeColor);
-
-    document.getElementById('cardLevel').innerText = data.isVip ? 'VIP MEMBER' : 'GENERAL MEMBER';
-    document.getElementById('cardName').innerText = data.name.length > 2 ? data.name[0] + 'O' + data.name.slice(2) : data.name[0] + 'O';
-    document.getElementById('cardPhoneDisplay').innerText = phone.substring(0, 4) + '***' + phone.substring(7);
-    
-    // --- 關鍵修正處 ---
-    if (!data.isVip) {
-        // 一般會員：顯示進度條，隱藏 VIP 皇冠
-        document.getElementById('upgradeSection').style.display = 'block';
-        document.getElementById('vipBenefit').style.display = 'none'; // 增加這行：隱藏 VIP 元件
-        
-        const total = parseFloat(data.total.toString().replace(/[^0-9.]/g, '') || 0);
-        const percent = Math.min((total / 8000) * 100, 100);
-        document.getElementById('progressBar').style.width = percent + '%';
-        document.getElementById('currentTotalText').innerText = '$' + total.toLocaleString();
-    } else {
-        // VIP 會員：隱藏進度條，顯示 VIP 皇冠
-        document.getElementById('upgradeSection').style.display = 'none';
-        document.getElementById('vipBenefit').style.display = 'block'; // 顯示 VIP 元件
-    }
-    // ----------------
-
-    document.getElementById('infoTotal').innerText = '$' + parseFloat(data.total).toLocaleString();
-    document.getElementById('infoDate').innerText = data.lastDate;
-    document.getElementById('infoCount').innerText = data.storeCount + ' 次';
-    document.getElementById('pointsValue').innerText = parseInt(data.points).toLocaleString();
-    document.getElementById('cashValue').innerText = parseInt(data.points).toLocaleString();
-    document.getElementById('bannerImg').src = data.isVip ? IMAGES.vip : IMAGES.general;
- renderCoupons(data.coupons);
-    const hList = document.getElementById('historyList');
-    hList.innerHTML = '';
-    // 每次渲染前先預設隱藏消費紀錄，有資料才開啟
-    document.getElementById('historySection').style.display = 'none'; 
-
-    if (data.purchaseHistory && data.purchaseHistory.length > 0) {
-        data.purchaseHistory.forEach(item => {
-            hList.innerHTML += `<div class="history-item"><span>${item.date}</span><span style="font-weight:900;">$${parseFloat(item.amount).toLocaleString()}</span></div>`;
-        });
-        document.getElementById('historySection').style.display = 'block';
-    }
-
-    JsBarcode("#barcode", phone, { format: "CODE128", lineColor: "#000", width: 2, height: 45, displayValue: false, margin: 0 });
-}
-
-// 優惠券
-function renderCoupons(couponStr) {
-            const container = document.getElementById('couponContainer');
-            container.innerHTML = "";
-            
-            if (!couponStr || couponStr.trim() === "") {
-                container.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">尚無可用優惠券</div>';
-                return;
-            }
-
-            const coupons = couponStr.split(',');
-            coupons.forEach(coupon => {
-                const [name, img, date, terms] = coupon.split('|');
-                const html = `
-                    <div class="coupon-item">
-                        ${img ? `<img src="${img}" class="coupon-img">` : ''}
-                        <div class="coupon-body">
-                            <div class="coupon-name">${name}</div>
-                            <div class="coupon-date">有效期至 ${date}</div>
-                            <div class="coupon-terms">${terms || '無使用說明'}</div>
-                            <button class="btn-redeem" onclick="handleRedeem('${coupon}')">立即核銷</button>
-                        </div>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', html);
-            });
-        }
-
-        async function handleRedeem(couponData) {
-    const { value: password } = await Swal.fire({
-        title: '請輸入核銷密碼',
-        input: 'password',
-        inputPlaceholder: '請由櫃姐輸入密碼',
-        showCancelButton: true,
-        confirmButtonColor: '#000',
-        confirmButtonText: '確認核銷',
-        cancelButtonText: '取消'
-    });
-
-    if (password === '123456') {
-        showLoading(); // 開始轉圈圈
-        try {
-            const res = await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'redeem_coupon_front',
-                    phone: currentUserPhone,
-                    couponData: couponData
-                })
-            });
-            
-            const result = await res.json();
-            hideLoading(); // 停止轉圈圈
-
-            if (result.status === 'success') {
-                await Swal.fire('核銷成功', '優惠券已成功刪除', 'success');
-                // 重新查詢最新資料，刷新畫面
-                doSearch(); 
-            } else {
-                Swal.fire('錯誤', result.message, 'error');
-            }
-        } catch (e) {
-            hideLoading();
-            Swal.fire('錯誤', '網路連線異常，請稍後再試', 'error');
-        }
-    } else if (password) {
-        Swal.fire('錯誤', '核銷密碼錯誤', 'error');
-    }
-}
     </script>
 </body>
 </html>
