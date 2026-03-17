@@ -20,6 +20,7 @@
         #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); backdrop-blur: 4px; z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
         .spinner { border: 4px solid var(--brand-surface); border-top: 4px solid var(--brand-primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
         .sidebar { width: var(--sidebar-width); background: var(--brand-brown); color: white; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; }
         .sidebar-header { padding: 40px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .sidebar-logo { width: 100px; border-radius: 12px; margin-bottom: 15px; }
@@ -27,60 +28,51 @@
         .nav-btn { width: 100%; padding: 15px 20px; margin-bottom: 10px; background: transparent; border: none; color: rgba(255,255,255,0.6); border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; transition: all 0.3s; text-align: left; }
         .nav-btn:hover { background: rgba(255,255,255,0.05); color: white; }
         .nav-btn.active { background: var(--brand-primary); color: var(--brand-brown); font-weight: 700; }
+        
         .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 40px 50px; max-width: 1400px; }
         .card { background: var(--brand-white); padding: 40px; border-radius: 30px; box-shadow: 0 15px 35px rgba(74, 65, 56, 0.05); display: none; border: 1px solid rgba(226, 200, 186, 0.2); }
         .card.active { display: block; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        /* 🐛 修復排版與加入響應式 (RWD) */
-        .dashboard-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
-            gap: 20px; 
-            margin-bottom: 20px; 
-        }
+        
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px; }
         .stat-box { background: var(--brand-white); padding: 25px; border-radius: 24px; border: 1px solid var(--brand-surface); display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        .stat-box .title { font-size: 13px; font-weight: 700; color: var(--brand-primary-dark); margin-bottom: 10px; }
+        .stat-box .title { font-size: 13px; font-weight: 700; color: var(--brand-primary-dark); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
         .stat-box .value { font-size: 28px; font-weight: 700; color: var(--brand-brown); }
         .stat-box .trend { font-size: 12px; margin-top: 8px; font-weight: 500; }
         
-        .chart-row { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); 
-            gap: 30px; 
-        }
-        .chart-card { background: white; border-radius: 24px; padding: 30px; border: 1px solid var(--brand-surface); }
+        .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; }
+        .chart-card { background: white; border-radius: 24px; padding: 30px; border: 1px solid var(--brand-surface); box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow: hidden; }
         .chart-title { font-size: 16px; font-weight: 700; margin-bottom: 25px; display: flex; align-items: center; gap: 8px; }
+        
+        .top-products-table { width: 100%; text-align: left; font-size: 14px; border-collapse: collapse; }
+        .top-products-table th { padding: 12px 15px; border-bottom: 2px solid var(--brand-surface); color: var(--brand-primary-dark); }
+        .top-products-table td { padding: 12px 15px; border-bottom: 1px solid var(--brand-surface); word-break: break-word; line-height: 1.4; }
+        .rank-badge { display: inline-block; width: 24px; height: 24px; background: var(--brand-surface); color: var(--brand-brown); text-align: center; line-height: 24px; border-radius: 50%; font-weight: bold; font-size: 12px; }
+        .rank-badge.top-1 { background: #FFD700; color: #FFF; }
+        .rank-badge.top-2 { background: #C0C0C0; color: #FFF; }
+        .rank-badge.top-3 { background: #CD7F32; color: #FFF; }
 
-        /* 螢幕縮小到平板/手機時的自動調整 */
-        @media (max-width: 1024px) {
-            .chart-row { grid-template-columns: 1fr; }
-        }
-        @media (max-width: 900px) {
-            .sidebar { width: 80px; }
-            .sidebar-logo { width: 50px; }
-            .nav-text { display: none; } /* 隱藏文字，只留 Icon */
-            .sidebar-header { padding: 20px 10px; }
-            .main-content { margin-left: 80px; padding: 20px; }
-        }
         .sync-tabs { display: flex; gap: 15px; margin-bottom: 30px; }
         .sync-tab { padding: 12px 25px; background: var(--brand-surface); border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 700; transition: 0.3s; color: var(--brand-text-muted); border: 2px solid transparent; }
         .sync-tab.active { background: var(--brand-white); border-color: var(--brand-primary); color: var(--brand-brown); }
         .upload-zone { border: 2px dashed var(--brand-primary); background: var(--brand-bg); padding: 60px; border-radius: 24px; text-align: center; cursor: pointer; transition: 0.3s; margin-bottom: 30px; }
-        .upload-zone:hover { background: var(--brand-surface); border-color: var(--brand-primary-dark); }
         .btn { padding: 16px 30px; border: none; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-primary { background: var(--brand-brown); color: var(--brand-white); box-shadow: 0 8px 20px rgba(74, 65, 56, 0.15); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(74, 65, 56, 0.2); }
+        
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #EFECE8; z-index: 1000; display: flex; align-items: center; justify-content: center; }
         .login-card { background: var(--brand-white); padding: 50px; border-radius: 40px; width: 400px; text-align: center; box-shadow: 0 30px 70px rgba(74, 65, 56, 0.1); }
+        
+        @media (max-width: 1024px) { .chart-row { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) {
+            .sidebar { width: 80px; } .sidebar-logo { width: 50px; } .nav-text { display: none; }
+            .sidebar-header { padding: 20px 10px; } .main-content { margin-left: 80px; padding: 20px; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="loadingOverlay">
-        <div class="spinner"></div>
-        <div id="loadingText" style="color: var(--brand-brown); margin-top:15px; font-weight: 700;">系統處理中...</div>
-    </div>
-
+    <div id="loadingOverlay"><div class="spinner"></div><div id="loadingText" style="color: var(--brand-brown); margin-top:15px; font-weight: 700;">系統處理中...</div></div>
+    
     <div id="loginOverlay">
         <div class="login-card">
             <img src="https://i.postimg.cc/LsQ1w407/RJ-3.jpg" style="width: 140px; border-radius: 20px; margin-bottom: 25px;">
@@ -96,64 +88,35 @@
             <div style="font-size: 11px; letter-spacing: 0.2em; opacity: 0.5;">ADMIN CENTER</div>
         </div>
         <nav class="sidebar-nav">
-            <button class="nav-btn active" onclick="switchTab('dashboard', this); initDashboard()">
-                <i data-lucide="layout-dashboard"></i> <span class="nav-text">經營數據儀表板</span>
-            </button>
-            <button class="nav-btn" onclick="switchTab('excel', this)">
-                <i data-lucide="refresh-cw"></i> <span class="nav-text">資料同步中心</span>
-            </button>
-            <button class="nav-btn" onclick="switchTab('pos', this)">
-                <i data-lucide="search"></i> <span class="nav-text">查詢與核銷</span>
-            </button>
-            <button class="nav-btn" onclick="switchTab('marketing', this)">
-                <i data-lucide="ticket"></i> <span class="nav-text">優惠券派發</span>
-            </button>
+            <button class="nav-btn active" onclick="switchTab('memberDash', this)"><i data-lucide="users"></i> <span class="nav-text">會員數據面板</span></button>
+            <button class="nav-btn" onclick="switchTab('revenueDash', this)"><i data-lucide="line-chart"></i> <span class="nav-text">營收訂單面板</span></button>
+            <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 15px 0;"></div>
+            <button class="nav-btn" onclick="switchTab('excel', this)"><i data-lucide="refresh-cw"></i> <span class="nav-text">資料同步中心</span></button>
+            <button class="nav-btn" onclick="switchTab('pos', this)"><i data-lucide="search"></i> <span class="nav-text">查詢與核銷</span></button>
+            <button class="nav-btn" onclick="switchTab('marketing', this)"><i data-lucide="ticket"></i> <span class="nav-text">優惠券派發</span></button>
         </nav>
     </aside>
 
     <main class="main-content" id="mainContent" style="display:none;">
         
-        <div id="dashboardSection" class="card active" style="background: transparent; border: none; box-shadow: none; padding: 0;">
-            <div class="page-header" style="margin-bottom: 20px;">
-                <h2>經營數據儀表板</h2>
-                <p id="lastSyncText" style="font-size: 13px; opacity: 0.6;">最後數據讀取日期：尚未讀取</p>
+        <div id="memberDashSection" class="card active" style="background: transparent; border: none; box-shadow: none; padding: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: end; margin-bottom: 30px;">
+                <div>
+                    <h2 id="pageTitle" style="margin:0; font-size: 24px; display: flex; align-items: center; gap: 10px;">會員數據面板</h2>
+                    <p id="lastSyncTextM" style="margin: 5px 0 0 0; font-size: 13px; opacity: 0.6;">最後數據讀取日期：尚未讀取</p>
+                </div>
             </div>
-
+            
             <div class="dashboard-grid">
-                <div class="stat-box">
-                    <span class="title flex items-center gap-1"><i data-lucide="dollar-sign" style="width:16px;"></i> 本月累積營收</span>
-                    <span class="value" id="stat-rev-month">0</span>
-                    <span class="trend" id="stat-rev-trend">較上月 -</span>
-                </div>
-                <div class="stat-box">
-                    <span class="title flex items-center gap-1"><i data-lucide="shopping-bag" style="width:16px;"></i> 本月成交訂單</span>
-                    <span class="value" id="stat-orders">0</span>
-                    <span class="trend" style="color: #666;">總交易筆數</span>
-                </div>
-                <div class="stat-box">
-                    <span class="title flex items-center gap-1"><i data-lucide="calculator" style="width:16px;"></i> 本月平均客單價</span>
-                    <span class="value" id="stat-aov">0</span>
-                    <span class="trend" style="color: #666;">營收 / 訂單數</span>
-                </div>
-                <div class="stat-box" style="background: var(--brand-primary); border: none;">
-                    <span class="title flex items-center gap-1" style="color: var(--brand-brown);"><i data-lucide="user-plus" style="width:16px;"></i> 近30天新客數</span>
-                    <span class="value" id="stat-new-customers" style="color: white;">0</span>
-                    <span class="trend" style="color: var(--brand-brown);">潛在回購對象</span>
-                </div>
+                <div class="stat-box"><span class="title"><i data-lucide="users"></i> 全體會員基數</span><span class="value" id="stat-total">0</span><span class="trend" style="color: #666;">系統總註冊人數</span></div>
+                <div class="stat-box"><span class="title"><i data-lucide="award"></i> VIP 核心會員</span><span class="value" id="stat-vip">0</span><span class="trend" id="stat-vip-ratio" style="color: var(--brand-primary-dark);">佔比 0%</span></div>
+                <div class="stat-box"><span class="title"><i data-lucide="activity"></i> 45天內活躍 (全體)</span><span class="value" id="stat-active">0</span><span class="trend" style="color: #4CAF50;">✅ 健康指標</span></div>
+                <div class="stat-box"><span class="title"><i data-lucide="user-minus"></i> 需召回總數 (流失)</span><span class="value" id="stat-lost">0</span><span class="trend" style="color: #F44336;">🚨 警示指標</span></div>
             </div>
 
-            <div class="dashboard-grid" style="margin-bottom: 30px;">
-                <div class="stat-box"><span class="title">全體會員基數</span><span class="value" id="stat-total">0</span><span class="trend" style="color: #666;">系統總註冊人數</span></div>
-                <div class="stat-box"><span class="title">VIP 核心會員</span><span class="value" id="stat-vip">0</span><span class="trend" id="stat-vip-ratio" style="color: var(--brand-primary-dark);">佔比 0%</span></div>
-                <div class="stat-box"><span class="title">45天內活躍 (全體)</span><span class="value" id="stat-active">0</span><span class="trend" style="color: #4CAF50;">✅ 健康指標</span></div>
-                <div class="stat-box"><span class="title">需召回總數 (邊緣+流失)</span><span class="value" id="stat-lost">0</span><span class="trend" style="color: #F44336;">🚨 警示指標</span></div>
-            </div>
-
-            <div class="chart-card" style="margin-bottom: 30px; padding: 0; overflow: hidden;">
-                <div style="padding: 20px 30px; border-bottom: 1px solid var(--brand-surface); background: #fff;">
-                    <h3 style="margin:0; font-size: 16px; display: flex; align-items: center; gap: 8px;">
-                        <i data-lucide="activity" style="color: var(--brand-primary); width: 20px;"></i> 即時會員健康診斷表
-                    </h3>
+            <div class="chart-card" style="margin-bottom: 30px; padding: 0;">
+                <div style="padding: 20px 30px; border-bottom: 1px solid var(--brand-surface);">
+                    <h3 style="margin:0; font-size: 16px; display: flex; align-items: center; gap: 8px;"><i data-lucide="stethoscope" style="color: var(--brand-primary); width: 20px;"></i> 即時會員健康診斷表</h3>
                 </div>
                 <div style="overflow-x: auto; padding: 10px;">
                     <div id="healthTableContainer"></div>
@@ -162,19 +125,69 @@
 
             <div class="chart-card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                    <h3 style="margin:0; font-size: 16px; display: flex; align-items: center; gap: 8px;">
-                        <i data-lucide="calendar-clock" style="color: var(--brand-primary); width: 20px;"></i> 歷史營運趨勢追蹤
-                    </h3>
-                    <select id="chartViewSelector" onchange="renderChartsByView()" style="background: var(--brand-surface); border: none; color: var(--brand-brown); font-weight: 700; padding: 10px 20px; border-radius: 12px; outline: none; cursor: pointer;">
+                    <h3 style="margin:0; font-size: 16px; display: flex; align-items: center; gap: 8px;"><i data-lucide="calendar-clock" style="color: var(--brand-primary); width: 20px;"></i> 會員結構趨勢追蹤</h3>
+                    <select id="memberViewSelector" onchange="renderMemberCharts()" style="background: var(--brand-surface); border: none; color: var(--brand-brown); font-weight: 700; padding: 10px 20px; border-radius: 12px; outline: none; cursor: pointer;">
                         <option value="daily">日檢視 (近14天)</option>
                         <option value="weekly" selected>週檢視 (近10週)</option>
                         <option value="monthly">月檢視 (近6個月)</option>
                     </select>
                 </div>
                 <div class="chart-row">
-                    <div style="position: relative; height: 300px; width: 100%;"><canvas id="structureChart"></canvas></div>
-                    <div style="position: relative; height: 300px; width: 100%;"><canvas id="trendChart"></canvas></div>
+                    <div style="height: 300px; width: 100%;"><canvas id="structureChart"></canvas></div>
+                    <div style="height: 300px; width: 100%;"><canvas id="trendChart"></canvas></div>
                 </div>
+            </div>
+        </div>
+
+        <div id="revenueDashSection" class="card" style="background: transparent; border: none; box-shadow: none; padding: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: end; margin-bottom: 30px;">
+                <div>
+                    <h2 id="pageTitle" style="margin:0; font-size: 24px; display: flex; align-items: center; gap: 10px;">營收訂單面板</h2>
+                    <p id="lastSyncTextR" style="margin: 5px 0 0 0; font-size: 13px; opacity: 0.6;">最後數據讀取日期：尚未讀取</p>
+                </div>
+                <div style="background: white; padding: 10px 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 10px;">
+                    <label style="font-size: 14px; font-weight: bold; color: var(--brand-primary-dark);">分析時間區間：</label>
+                    <select id="revenueRangeSelector" onchange="fetchDashboardData()" style="background: var(--brand-surface); border: none; color: var(--brand-brown); font-weight: 700; padding: 8px 15px; border-radius: 8px; outline: none; cursor: pointer;">
+                        <option value="yesterday">昨天</option>
+                        <option value="last7days">近 7 日</option>
+                        <option value="thisWeek">本週</option>
+                        <option value="thisMonth" selected>本月</option>
+                        <option value="last30days">近 30 天</option>
+                        <option value="last3months">近 3 個月</option>
+                        <option value="last6months">近 6 個月</option>
+                        <option value="last12months">近 12 個月</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="stat-box"><span class="title"><i data-lucide="dollar-sign"></i> 區間累積營收</span><span class="value" id="stat-rev-month">$0</span><span class="trend" id="stat-rev-trend">較前期 -</span></div>
+                <div class="stat-box"><span class="title"><i data-lucide="shopping-bag"></i> 區間成交訂單</span><span class="value" id="stat-orders">0</span><span class="trend" style="color: #666;">總交易筆數</span></div>
+                <div class="stat-box"><span class="title"><i data-lucide="calculator"></i> 區間客單價</span><span class="value" id="stat-aov">$0</span><span class="trend" style="color: #666;">營收 / 訂單數</span></div>
+                <div class="stat-box" style="background: var(--brand-primary); border: none;"><span class="title" style="color: var(--brand-brown);"><i data-lucide="user-plus"></i> 區間首購新客</span><span class="value" id="stat-new-customers" style="color: white;">0</span><span class="trend" style="color: var(--brand-brown);">潛在回購對象</span></div>
+            </div>
+
+            <div class="chart-row" style="margin-bottom: 30px;">
+                <div class="chart-card" style="grid-column: 1 / -1;">
+                    <h3 class="chart-title"><i data-lucide="trending-up" style="color: var(--brand-primary); width: 20px;"></i> 營收單量趨勢圖</h3>
+                    <div style="height: 350px; width: 100%;"><canvas id="revenueTrendChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="chart-row" style="margin-bottom: 30px;">
+                <div class="chart-card">
+                    <h3 class="chart-title"><i data-lucide="store" style="color: var(--brand-primary); width: 20px;"></i> 門市營收佔比</h3>
+                    <div style="height: 280px; width: 100%;"><canvas id="storeRevChart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title"><i data-lucide="ruler" style="color: var(--brand-primary); width: 20px;"></i> 新客首購尺寸偏好 (件)</h3>
+                    <div style="height: 280px; width: 100%;"><canvas id="newCustSizeChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="chart-card" style="overflow-y: auto; max-height: 500px; padding: 20px 30px;">
+                <h3 class="chart-title sticky top-0 bg-white pt-2 pb-2"><i data-lucide="flame" style="color: #F44336; width: 20px;"></i> 熱銷商品排行榜 (Top 10) <span style="font-size: 12px; font-weight: normal; color: #888;">*已排除特定滿額贈品</span></h3>
+                <table class="top-products-table" id="topProductsTable"></table>
             </div>
         </div>
 
@@ -185,56 +198,31 @@
                 <div class="sync-tab" onclick="setSyncType('orders', this)">訂單紀錄匯入</div>
                 <div class="sync-tab" onclick="setSyncType('points', this)">紅利點數匯入</div>
             </div>
-            <div class="upload-zone" onclick="document.getElementById('excelFile').click()">
-                <div id="uploadPlaceholder">
-                    <i data-lucide="file-up" style="width: 48px; height: 48px; margin-bottom: 15px; color: var(--brand-primary);"></i>
-                    <h3 id="uploadTitle">點擊上傳 會員資料 Excel</h3>
-                </div>
-                <input type="file" id="excelFile" hidden accept=".xlsx, .xls" onchange="handleExcelSelect(event)">
-            </div>
+            <div class="upload-zone" onclick="document.getElementById('excelFile').click()"><div id="uploadPlaceholder"><i data-lucide="file-up" style="width: 48px; height: 48px; margin-bottom: 15px; color: var(--brand-primary);"></i><h3 id="uploadTitle">點擊上傳 會員資料 Excel</h3></div><input type="file" id="excelFile" hidden accept=".xlsx, .xls" onchange="handleExcelSelect(event)"></div>
             <div id="previewArea" style="display: none;" class="preview-area">
                 <h4 style="margin-bottom:15px; color: var(--brand-primary-dark);">資料預覽 (顯示前 5 筆)</h4>
-                <div style="overflow-x: auto; background: var(--brand-bg); padding: 15px; border-radius: 15px;">
-                    <table class="preview-table" id="previewTable" style="width:100%; border-collapse:collapse;"></table>
-                </div>
-                <div style="margin-top: 30px; text-align: right;">
-                    <button class="btn btn-primary" onclick="confirmAndSync()">確認同步</button>
-                </div>
+                <div style="overflow-x: auto; background: var(--brand-bg); padding: 15px; border-radius: 15px;"><table class="preview-table" id="previewTable" style="width:100%; border-collapse:collapse;"></table></div>
+                <div style="margin-top: 30px; text-align: right;"><button class="btn btn-primary" onclick="confirmAndSync()">確認同步</button></div>
             </div>
         </div>
-
         <div id="posSection" class="card">
             <h2>查詢與核銷</h2>
-            <div style="display:flex; gap:15px; margin-top:20px;">
-                <input type="tel" id="searchPhone" style="flex:1; padding:15px; border-radius:12px; border:1px solid #ddd;" placeholder="會員電話">
-                <button class="btn btn-primary" onclick="searchMember()">查詢</button>
-            </div>
-            <div id="memberResult" style="display:none; margin-top:30px;">
-                <h3 id="memName"></h3>
-                <div id="couponList"></div>
-            </div>
+            <div style="display:flex; gap:15px; margin-top:20px;"><input type="tel" id="searchPhone" style="flex:1; padding:15px; border-radius:12px; border:1px solid #ddd;" placeholder="會員電話"><button class="btn btn-primary" onclick="searchMember()">查詢</button></div>
+            <div id="memberResult" style="display:none; margin-top:30px;"><h3 id="memName"></h3><div id="couponList"></div></div>
         </div>
-
-        <div id="marketingSection" class="card">
-            <h2>優惠券派發</h2>
-        </div>
+        <div id="marketingSection" class="card"><h2>優惠券派發</h2></div>
     </main>
 
     <script>
         lucide.createIcons();
-
-        // ⭐ 請把這裡換回你自己的 API_URL
-        const API_URL = "https://script.google.com/macros/s/AKfycbxcCtUd218md3OSCQqOGT2Fg0D15lM2FIj2ZRbNq31iKbnd2loGuW9p2LQ-V6Qf8Tj7VA/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwCR1p9WR-thxjkJOAtpv1aW_TXf0wA3ndcrqGnwoXbiySb3dsktP8mgIKTR2lKQxv3yQ/exec";
         let PASSWORD = "";
         let currentSyncType = 'members';
         let excelData = null;
         let charts = {}; 
-        let globalHistory = [];
+        let globalData = {}; 
 
-        function showLoading(text = "處理中...") { 
-            document.getElementById('loadingText').innerText = text;
-            document.getElementById('loadingOverlay').style.display = 'flex'; 
-        }
+        function showLoading(text="處理中...") { document.getElementById('loadingText').innerText = text; document.getElementById('loadingOverlay').style.display = 'flex'; }
         function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
 
         function login() {
@@ -249,263 +237,9 @@
                     document.getElementById('loginOverlay').style.display = 'none';
                     document.getElementById('sidebar').style.display = 'flex';
                     document.getElementById('mainContent').style.display = 'block';
-                    initDashboard(); 
+                    fetchDashboardData(); 
                 } else { Swal.fire('登入失敗', '密碼不正確', 'error'); }
             });
-        }
-
-        // === 儀表板核心邏輯 ===
-        // 1. 初始化資料填入
-async function initDashboard() {
-    showLoading("讀取戰情數據...");
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'get_dashboard_data', password: PASSWORD })
-        });
-        const res = await response.json();
-        
-        if (res.status === 'success' && res.data) {
-            const s = res.data;
-            globalHistory = res.history || []; 
-
-            // --- 營收相關 ---
-            document.getElementById('stat-rev-month').innerText = '$' + s.revenue.thisMonth.toLocaleString();
-            document.getElementById('stat-orders').innerText = s.revenue.ordersThisMonth.toLocaleString();
-            let aov = s.revenue.ordersThisMonth > 0 ? Math.round(s.revenue.thisMonth / s.revenue.ordersThisMonth) : 0;
-            document.getElementById('stat-aov').innerText = '$' + aov.toLocaleString();
-            document.getElementById('stat-new-customers').innerText = s.newCustomers.toLocaleString();
-            
-            // 計算營收月增率
-            if (s.revenue.lastMonth > 0) {
-                let growth = ((s.revenue.thisMonth - s.revenue.lastMonth) / s.revenue.lastMonth * 100).toFixed(1);
-                let trendEl = document.getElementById('stat-rev-trend');
-                trendEl.innerText = `較上月 ${growth > 0 ? '▲' : '▼'} ${Math.abs(growth)}%`;
-                trendEl.style.color = growth > 0 ? '#4CAF50' : '#F44336';
-            }
-
-            // --- 會員相關 ---
-            document.getElementById('stat-total').innerText = (s.total || 0).toLocaleString();
-            document.getElementById('stat-vip').innerText = (s.vipTotal || 0).toLocaleString();
-            document.getElementById('stat-vip-ratio').innerText = `佔比 ${s.total ? Math.round((s.vipTotal/s.total)*100) : 0}%`;
-            document.getElementById('stat-active').innerText = (s.statusAll.active || 0).toLocaleString();
-            document.getElementById('stat-lost').innerText = ((s.statusAll.edge || 0) + (s.statusAll.lost || 0)).toLocaleString();
-
-            renderHealthTable(s.statusAll, s.statusVip, s.total, s.vipTotal);
-            renderChartsByView();
-            document.getElementById('lastSyncText').innerText = `最後讀取：${new Date().toLocaleTimeString()}`;
-            lucide.createIcons();
-        }
-    } catch (e) {
-        console.error(e);
-    } finally {
-        hideLoading();
-    }
-}
-
-// 2. VIP 與 一般會員 分離判斷的健康燈號
-function getHealthLight(rate, type, isVip = false) {
-    if (isVip) {
-        // 👑 VIP 標準更嚴格：活躍必須更高，流失容忍度更低
-        if (type === 'active') return rate < 25 ? '🔴 偏弱' : (rate < 30 ? '🟠 注意' : '🟢 正常');
-        if (type === 'cool1') return rate > 15 ? '🔴 偏高' : (rate > 10 ? '🟠 注意' : '🟢 正常');
-        if (type === 'cool2') return rate > 15 ? '🔴 偏高' : (rate > 10 ? '🟠 注意' : '🟢 正常');
-        if (type === 'edge')  return rate > 10 ? '🔴 危險' : (rate > 5 ? '🟠 注意' : '🟢 正常');
-        if (type === 'lost')  return rate > 25 ? '🔴 需召回' : (rate > 20 ? '🟠 偏高' : '🟢 正常');
-    } else {
-        // 👤 一般會員標準
-        if (type === 'active') return rate < 20 ? '🔴 偏弱' : (rate < 25 ? '🟠 注意' : '🟢 正常');
-        if (type === 'cool1') return rate > 20 ? '🔴 偏高' : (rate > 15 ? '🟠 注意' : '🟢 正常');
-        if (type === 'cool2') return rate > 20 ? '🔴 偏高' : (rate > 15 ? '🟠 注意' : '🟢 正常');
-        if (type === 'edge')  return rate > 15 ? '🔴 危險' : (rate > 10 ? '🟠 注意' : '🟢 正常');
-        if (type === 'lost')  return rate > 35 ? '🔴 需召回' : (rate > 30 ? '🟠 偏高' : '🟢 正常');
-    }
-    return '-';
-}
-
-// 3. 修改 renderHealthTable 讓他呼叫燈號時傳入 true/false
-function renderHealthTable(all, vip, totalAll, totalVip) {
-    const stages = [
-        { name: "活躍會員 (45天內)", key: "active", type: "active" },
-        { name: "冷卻初期 (45-75天)", key: "cool1", type: "cool1" },
-        { name: "冷卻中期 (75-120天)", key: "cool2", type: "cool2" },
-        { name: "流失邊緣 (120-150天)", key: "edge", type: "edge" },
-        { name: "已流失 (150天以上)", key: "lost", type: "lost" }
-    ];
-
-    let html = `
-        <table style="width: 100%; text-align: left; font-size: 13px; border-collapse: collapse;">
-            <thead style="background: var(--brand-surface); color: var(--brand-brown);">
-                <tr>
-                    <th style="padding: 15px 20px;">全體會員項目</th>
-                    <th style="padding: 15px;">人數</th><th style="padding: 15px;">比例</th>
-                    <th style="padding: 15px; border-right: 2px solid white;">健康燈號</th>
-                    <th style="padding: 15px 20px; color: var(--brand-primary-dark);">VIP 項目</th>
-                    <th style="padding: 15px; color: var(--brand-primary-dark);">人數</th>
-                    <th style="padding: 15px; color: var(--brand-primary-dark);">比例</th>
-                    <th style="padding: 15px; color: var(--brand-primary-dark);">健康燈號</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    stages.forEach(s => {
-        let aCount = all[s.key] || 0;
-        let aRate = totalAll ? (aCount / totalAll * 100) : 0;
-        let vCount = vip[s.key] || 0;
-        let vRate = totalVip ? (vCount / totalVip * 100) : 0;
-
-        html += `
-            <tr style="border-bottom: 1px solid var(--brand-surface);">
-                <td style="padding: 15px 20px;">${s.name}</td>
-                <td style="padding: 15px; font-weight: bold;">${aCount}</td>
-                <td style="padding: 15px;">${aRate.toFixed(2)}%</td>
-                <td style="padding: 15px; border-right: 2px solid var(--brand-surface);">${getHealthLight(aRate, s.type, false)}</td>
-                
-                <td style="padding: 15px 20px; color: var(--brand-primary-dark);">${s.name.replace('會員','VIP')}</td>
-                <td style="padding: 15px; font-weight: bold;">${vCount}</td>
-                <td style="padding: 15px;">${vRate.toFixed(2)}%</td>
-                <td style="padding: 15px;">${getHealthLight(vRate, s.type, true)}</td>
-            </tr>
-        `;
-    });
-
-    html += `</tbody></table>`;
-    document.getElementById('healthTableContainer').innerHTML = html;
-}
-
-        function renderChartsByView() {
-            if (!globalHistory || globalHistory.length === 0) return;
-            const view = document.getElementById('chartViewSelector').value;
-            let filteredHistory = [];
-
-            if (view === 'daily') {
-                filteredHistory = globalHistory.slice(-14).map(h => ({...h, displayDate: h.date.substring(5)}));
-            } 
-            else if (view === 'weekly') {
-                let currentWeek = "";
-                for (let i = globalHistory.length - 1; i >= 0; i--) {
-                    let d = new Date(globalHistory[i].date);
-                    let weekStr = d.getFullYear() + "-W" + Math.ceil(d.getDate() / 7);
-                    if (weekStr !== currentWeek) {
-                        filteredHistory.unshift({...globalHistory[i], displayDate: globalHistory[i].date.substring(5)});
-                        currentWeek = weekStr;
-                    }
-                    if (filteredHistory.length >= 10) break; 
-                }
-            } 
-            else if (view === 'monthly') {
-                let currentMonth = "";
-                for (let i = globalHistory.length - 1; i >= 0; i--) {
-                    let d = new Date(globalHistory[i].date);
-                    let monthStr = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0');
-                    if (monthStr !== currentMonth) {
-                        filteredHistory.unshift({...globalHistory[i], displayDate: monthStr});
-                        currentMonth = monthStr;
-                    }
-                    if (filteredHistory.length >= 6) break;
-                }
-            }
-            renderStructureChart(filteredHistory);
-            renderTrendChart(filteredHistory);
-        }
-
-        function renderStructureChart(history) {
-            const ctx = document.getElementById('structureChart').getContext('2d');
-            if (charts.structure) charts.structure.destroy();
-            charts.structure = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: history.map(h => h.displayDate),
-                    datasets: [
-                        { label: '活躍', data: history.map(h => h.totalRates[0]), backgroundColor: '#A5D6A7' },
-                        { label: '冷卻初期', data: history.map(h => h.totalRates[1]), backgroundColor: '#C8E6C9' },
-                        { label: '冷卻中期', data: history.map(h => h.totalRates[2]), backgroundColor: '#FFF59D' },
-                        { label: '流失邊緣', data: history.map(h => h.totalRates[3]), backgroundColor: '#FFCC80' },
-                        { label: '已流失', data: history.map(h => h.totalRates[4]), backgroundColor: '#EF9A9A' }
-                    ]
-                },
-                options: { maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true, max: 100 } } }
-            });
-        }
-
-        function renderTrendChart(history) {
-            const ctx = document.getElementById('trendChart').getContext('2d');
-            if (charts.trend) charts.trend.destroy();
-            charts.trend = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: history.map(h => h.displayDate),
-                    datasets: [
-                        { label: '全體活躍率', data: history.map(h => h.totalRates[0]), borderColor: '#E2C8BA', backgroundColor: '#E2C8BA', tension: 0.3 },
-                        { label: 'VIP 活躍率', data: history.map(h => h.vipRates[0]), borderColor: '#4A4138', backgroundColor: '#4A4138', tension: 0.3 }
-                    ]
-                },
-                options: { maintainAspectRatio: false }
-            });
-        }
-
-        // === Excel 預覽邏輯 ===
-        function setSyncType(type, btn) {
-            currentSyncType = type;
-            document.querySelectorAll('.sync-tab').forEach(t => t.classList.remove('active'));
-            btn.classList.add('active');
-            const titleMap = { 'members': '會員資料 Excel', 'orders': '訂單紀錄 Excel', 'points': '紅利點數 Excel' };
-            document.getElementById('uploadTitle').innerText = `點擊上傳 ${titleMap[type]}`;
-            document.getElementById('previewArea').style.display = 'none';
-        }
-
-        function handleExcelSelect(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                let skipRange = 0;
-                if (currentSyncType === 'orders') skipRange = 3;
-                if (currentSyncType === 'points') skipRange = 2;
-                excelData = XLSX.utils.sheet_to_json(worksheet, { range: skipRange });
-
-                if (excelData.length > 0) {
-                    renderPreview(excelData.slice(0, 5));
-                    document.getElementById('previewArea').style.display = 'block';
-                    // 移除掉 analyzeMemberData 避免衝突
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function renderPreview(data) {
-            const table = document.getElementById('previewTable');
-            const headers = Object.keys(data[0]);
-            let html = `<tr>${headers.map(h => `<th style="padding:10px; text-align:left; font-size:12px; border-bottom:2px solid #E2C8BA;">${h}</th>`).join('')}</tr>`;
-            data.forEach(row => {
-                html += `<tr>${headers.map(h => `<td style="padding:10px; border-bottom:1px solid #eee; font-size:12px;">${row[h] || ''}</td>`).join('')}</tr>`;
-            });
-            table.innerHTML = html;
-        }
-
-        async function confirmAndSync() {
-            if (!excelData) return;
-            const actionMap = { 'members': 'batch_update_members', 'orders': 'batch_add_orders', 'points': 'batch_add_points' };
-            showLoading(`同步中...`);
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: actionMap[currentSyncType], password: PASSWORD, data: excelData })
-                });
-                const res = await response.json();
-                hideLoading();
-                if (res.status === 'success') {
-                    Swal.fire('成功', '資料已同步至雲端', 'success');
-                    document.getElementById('previewArea').style.display = 'none';
-                } else { Swal.fire('失敗', res.message, 'error'); }
-            } catch (e) {
-                hideLoading();
-                Swal.fire('連線錯誤', '無法傳送至 GAS', 'error');
-            }
         }
 
         function switchTab(id, btn) {
@@ -513,19 +247,278 @@ function renderHealthTable(all, vip, totalAll, totalVip) {
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(id + 'Section').classList.add('active');
             btn.classList.add('active');
+            if(id === 'memberDash') renderMemberCharts();
+            if(id === 'revenueDash') renderRevenueCharts();
         }
 
+        // === 向後端請求資料 ===
+        async function fetchDashboardData() {
+            const selectedRange = document.getElementById('revenueRangeSelector').value;
+            showLoading("運算數據庫中...");
+            try {
+                const response = await fetch(API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ action: 'get_dashboard_data', password: PASSWORD, range: selectedRange }) 
+                });
+                const res = await response.json();
+                
+                if (res.status === 'success' && res.data) {
+                    globalData = res; 
+                    const s = res.data;
+                    const rData = s.revenueData;
+
+                    // 會員面板
+                    document.getElementById('stat-total').innerText = (s.total || 0).toLocaleString();
+                    document.getElementById('stat-vip').innerText = (s.vipTotal || 0).toLocaleString();
+                    document.getElementById('stat-vip-ratio').innerText = `佔比 ${s.total ? Math.round((s.vipTotal/s.total)*100) : 0}%`;
+                    document.getElementById('stat-active').innerText = (s.statusAll.active || 0).toLocaleString();
+                    document.getElementById('stat-lost').innerText = ((s.statusAll.edge || 0) + (s.statusAll.lost || 0)).toLocaleString();
+                    
+                    // 營收面板
+                    document.getElementById('stat-rev-month').innerText = '$' + rData.current.rev.toLocaleString();
+                    document.getElementById('stat-orders').innerText = rData.current.ord.toLocaleString();
+                    document.getElementById('stat-aov').innerText = '$' + (rData.current.ord > 0 ? Math.round(rData.current.rev / rData.current.ord) : 0).toLocaleString();
+                    document.getElementById('stat-new-customers').innerText = s.newCustomers.toLocaleString();
+                    
+                    if (rData.prev.rev > 0) {
+                        let growth = ((rData.current.rev - rData.prev.rev) / rData.prev.rev * 100).toFixed(1);
+                        let tr = document.getElementById('stat-rev-trend');
+                        tr.innerText = `較前期 ${growth > 0 ? '▲' : '▼'} ${Math.abs(growth)}%`;
+                        tr.style.color = growth > 0 ? '#4CAF50' : '#F44336';
+                    } else {
+                        document.getElementById('stat-rev-trend').innerText = `較前期 -`;
+                        document.getElementById('stat-rev-trend').style.color = '#666';
+                    }
+
+                    // 渲染
+                    renderHealthTable(s.statusAll, s.statusVip, s.total, s.vipTotal);
+                    renderTopProducts(rData.products);
+                    renderSizeChart(rData.sizes);
+                    renderMemberCharts();
+                    renderRevenueCharts(selectedRange); // 傳入範圍以決定顯示日/月
+                    
+                    let timeNow = `最後讀取：${new Date().toLocaleTimeString()}`;
+                    document.getElementById('lastSyncTextM').innerText = timeNow;
+                    document.getElementById('lastSyncTextR').innerText = timeNow;
+                    lucide.createIcons();
+                }
+            } catch (e) { console.error(e); } finally { hideLoading(); }
+        }
+
+        // === 會員面板邏輯 ===
+        function getHealthLight(rate, type, isVip = false) {
+            if (isVip) {
+                if (type === 'active') return rate < 25 ? '🔴 偏弱' : (rate < 30 ? '🟠 注意' : '🟢 正常');
+                if (type === 'cool1') return rate > 15 ? '🔴 偏高' : (rate > 10 ? '🟠 注意' : '🟢 正常');
+                if (type === 'cool2') return rate > 15 ? '🔴 偏高' : (rate > 10 ? '🟠 注意' : '🟢 正常');
+                if (type === 'edge')  return rate > 10 ? '🔴 危險' : (rate > 5 ? '🟠 注意' : '🟢 正常');
+                if (type === 'lost')  return rate > 25 ? '🔴 需召回' : (rate > 20 ? '🟠 偏高' : '🟢 正常');
+            } else {
+                if (type === 'active') return rate < 20 ? '🔴 偏弱' : (rate < 25 ? '🟠 注意' : '🟢 正常');
+                if (type === 'cool1') return rate > 20 ? '🔴 偏高' : (rate > 15 ? '🟠 注意' : '🟢 正常');
+                if (type === 'cool2') return rate > 20 ? '🔴 偏高' : (rate > 15 ? '🟠 注意' : '🟢 正常');
+                if (type === 'edge')  return rate > 15 ? '🔴 危險' : (rate > 10 ? '🟠 注意' : '🟢 正常');
+                if (type === 'lost')  return rate > 35 ? '🔴 需召回' : (rate > 30 ? '🟠 偏高' : '🟢 正常');
+            }
+            return '-';
+        }
+
+        function renderHealthTable(all, vip, totalAll, totalVip) {
+            const stages = [{ name: "活躍會員", key: "active", type: "active" }, { name: "冷卻初期", key: "cool1", type: "cool1" }, { name: "冷卻中期", key: "cool2", type: "cool2" }, { name: "流失邊緣", key: "edge", type: "edge" }, { name: "已流失", key: "lost", type: "lost" }];
+            let html = `<table style="width: 100%; text-align: left; font-size: 13px; border-collapse: collapse;"><thead style="background: var(--brand-surface); color: var(--brand-brown);"><tr><th style="padding: 12px 15px;">全體階段</th><th style="padding: 12px;">人數</th><th style="padding: 12px;">比例</th><th style="padding: 12px; border-right: 2px solid white;">健康燈號</th><th style="padding: 12px 15px; color: var(--brand-primary-dark);">VIP 階段</th><th style="padding: 12px; color: var(--brand-primary-dark);">人數</th><th style="padding: 12px; color: var(--brand-primary-dark);">比例</th><th style="padding: 12px; color: var(--brand-primary-dark);">健康燈號</th></tr></thead><tbody>`;
+            stages.forEach(s => {
+                let aCount = all[s.key] || 0, vCount = vip[s.key] || 0;
+                let aRate = totalAll ? (aCount/totalAll*100) : 0, vRate = totalVip ? (vCount/totalVip*100) : 0;
+                html += `<tr style="border-bottom: 1px solid var(--brand-surface);">
+                    <td style="padding: 12px 15px;">${s.name}</td><td style="padding: 12px; font-weight: bold;">${aCount}</td><td style="padding: 12px;">${aRate.toFixed(1)}%</td><td style="padding: 12px; border-right: 2px solid var(--brand-surface);">${getHealthLight(aRate, s.type, false)}</td>
+                    <td style="padding: 12px 15px; color: var(--brand-primary-dark);">${s.name.replace('會員','VIP')}</td><td style="padding: 12px; font-weight: bold;">${vCount}</td><td style="padding: 12px;">${vRate.toFixed(1)}%</td><td style="padding: 12px;">${getHealthLight(vRate, s.type, true)}</td>
+                </tr>`;
+            });
+            document.getElementById('healthTableContainer').innerHTML = html + `</tbody></table>`;
+        }
+
+        function renderMemberCharts() {
+            if (!globalData.history || globalData.history.length === 0) return;
+            const viewType = document.getElementById('memberViewSelector').value;
+            let hist = filterByView(globalData.history, viewType, 'date');
+            
+            if (charts.structure) charts.structure.destroy();
+            charts.structure = new Chart(document.getElementById('structureChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: hist.map(h => h.displayDate), datasets: [
+                    { label: '活躍', data: hist.map(h => h.totalRates[0]), backgroundColor: '#A5D6A7' },
+                    { label: '冷卻初期', data: hist.map(h => h.totalRates[1]), backgroundColor: '#C8E6C9' },
+                    { label: '冷卻中期', data: hist.map(h => h.totalRates[2]), backgroundColor: '#FFF59D' },
+                    { label: '流失邊緣', data: hist.map(h => h.totalRates[3]), backgroundColor: '#FFCC80' },
+                    { label: '已流失', data: hist.map(h => h.totalRates[4]), backgroundColor: '#EF9A9A' }
+                ]}, options: { maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true, max: 100 } } }
+            });
+
+            if (charts.trend) charts.trend.destroy();
+            charts.trend = new Chart(document.getElementById('trendChart').getContext('2d'), {
+                type: 'line',
+                data: { labels: hist.map(h => h.displayDate), datasets: [
+                    { label: '全體活躍率', data: hist.map(h => h.totalRates[0]), borderColor: '#E2C8BA', backgroundColor: '#E2C8BA', tension: 0.3 },
+                    { label: 'VIP 活躍率', data: hist.map(h => h.vipRates[0]), borderColor: '#4A4138', backgroundColor: '#4A4138', tension: 0.3 }
+                ]}, options: { maintainAspectRatio: false }
+            });
+        }
+
+        // === 營收面板邏輯 ===
+        function renderTopProducts(products) {
+            let html = `<tr><th>排名</th><th>商品完整名稱</th><th>總銷量</th><th>營收貢獻</th></tr>`;
+            if(products.length === 0) { html += `<tr><td colspan="4" style="text-align:center;">該區間無銷售資料</td></tr>`; }
+            products.forEach((p, i) => {
+                let badgeClass = i===0 ? 'top-1' : (i===1 ? 'top-2' : (i===2 ? 'top-3' : ''));
+                html += `<tr><td><span class="rank-badge ${badgeClass}">${i+1}</span></td><td>${p.name}</td><td><b>${p.qty}</b> 件</td><td style="color: var(--brand-primary-dark); font-weight: bold;">$${p.rev.toLocaleString()}</td></tr>`;
+            });
+            document.getElementById('topProductsTable').innerHTML = html;
+        }
+
+        function renderSizeChart(sizes) {
+            if (charts.size) charts.size.destroy();
+            if(!sizes || sizes.length === 0) return;
+            
+            let labels = sizes.map(s => s.size + ' 碼');
+            let newData = sizes.map(s => s.newCount);
+            let oldData = sizes.map(s => s.oldCount);
+            
+            charts.size = new Chart(document.getElementById('newCustSizeChart').getContext('2d'), {
+                type: 'bar',
+                data: { 
+                    labels: labels, 
+                    datasets: [
+                        { label: '新客首購', data: newData, backgroundColor: '#E2C8BA', borderRadius: 4 },
+                        { label: '舊客回購', data: oldData, backgroundColor: '#4A4138', borderRadius: 4 }
+                    ] 
+                },
+                options: { 
+                    maintainAspectRatio: false, 
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, grid: { color: '#F5F2EE' } }
+                    },
+                    plugins: { legend: { position: 'bottom' } } 
+                }
+            });
+        }
+
+        function renderRevenueCharts(range) {
+            if (!globalData.data || !globalData.data.revenueData) return;
+            const rData = globalData.data.revenueData;
+            
+            if (charts.store) charts.store.destroy();
+            let storeLabels = Object.keys(rData.stores);
+            charts.store = new Chart(document.getElementById('storeRevChart').getContext('2d'), {
+                type: 'doughnut',
+                data: { labels: storeLabels, datasets: [{ data: storeLabels.map(k => rData.stores[k].rev), backgroundColor: ['#E2C8BA', '#4A4138', '#B89B8D', '#8E847C'] }] },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+            });
+
+            // 根據區間設定圖表顯示模式 (不刪剪資料，讓 X 軸自動縮放)
+            let timeSetting = 'daily';
+            if (range === 'last3months' || range === 'last6months' || range === 'last12months') timeSetting = 'monthly';
+            else if (range === 'last30days') timeSetting = 'weekly';
+
+            let rawDaily = Object.keys(rData.daily).map(k => ({ date: k, rev: rData.daily[k].rev, ord: rData.daily[k].ord })).sort((a,b)=>a.date.localeCompare(b.date));
+            let hist = filterByView(rawDaily, timeSetting, 'date', true);
+
+            if (charts.revTrend) charts.revTrend.destroy();
+            charts.revTrend = new Chart(document.getElementById('revenueTrendChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: hist.map(h => h.displayDate),
+                    datasets: [
+                        { type: 'line', label: '單量 (右軸)', data: hist.map(h => h.ord), borderColor: '#4A4138', backgroundColor: '#4A4138', yAxisID: 'y1', tension: 0.3 },
+                        { type: 'bar', label: '營收 (左軸)', data: hist.map(h => h.rev), backgroundColor: '#E2C8BA', borderRadius: 4, yAxisID: 'y' }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { type: 'linear', display: true, position: 'left', grid: { color: '#F5F2EE' } },
+                        y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+        }
+
+        // --- 修正後的動態聚合邏輯 (讓資料不再被截斷) ---
+        function filterByView(array, view, dateKey, isSum = false) {
+            let res = [];
+            if (view === 'daily') {
+                res = array.map(item => ({...item, displayDate: item[dateKey].substring(5)}));
+            } else if (view === 'weekly') {
+                let currentBucket = ""; let tempObj = null;
+                for (let i = 0; i < array.length; i++) {
+                    let d = new Date(array[i][dateKey]);
+                    let weekStr = d.getFullYear() + "-W" + Math.ceil(d.getDate() / 7);
+                    if (weekStr !== currentBucket) {
+                        if(tempObj) res.push(tempObj);
+                        currentBucket = weekStr; tempObj = {...array[i], displayDate: weekStr};
+                    } else if (isSum) {
+                        tempObj.rev += array[i].rev; tempObj.ord += array[i].ord;
+                    } else { tempObj = {...array[i], displayDate: weekStr}; }
+                }
+                if(tempObj) res.push(tempObj);
+                if(!isSum) res = res.slice(-10); // 會員趨勢圖維持最多看 10 週
+            } else if (view === 'monthly') {
+                let currentBucket = ""; let tempObj = null;
+                for (let i = 0; i < array.length; i++) {
+                    let d = new Date(array[i][dateKey]);
+                    let monthStr = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0');
+                    if (monthStr !== currentBucket) {
+                        if(tempObj) res.push(tempObj);
+                        currentBucket = monthStr; tempObj = {...array[i], displayDate: monthStr};
+                    } else if (isSum) {
+                        tempObj.rev += array[i].rev; tempObj.ord += array[i].ord;
+                    } else { tempObj = {...array[i], displayDate: monthStr}; }
+                }
+                if(tempObj) res.push(tempObj);
+                if(!isSum) res = res.slice(-12);
+            }
+            return res;
+        }
+
+        // --- Excel 同步邏輯 (保持不變) ---
+        function setSyncType(type, btn) {
+            currentSyncType = type; document.querySelectorAll('.sync-tab').forEach(t => t.classList.remove('active')); btn.classList.add('active');
+            const titleMap = { 'members': '會員資料 Excel', 'orders': '訂單紀錄 Excel', 'points': '紅利點數 Excel' };
+            document.getElementById('uploadTitle').innerText = `點擊上傳 ${titleMap[type]}`; document.getElementById('previewArea').style.display = 'none';
+        }
+        function handleExcelSelect(e) {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, { type: 'array' }); const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                let skipRange = currentSyncType === 'orders' ? 3 : (currentSyncType === 'points' ? 2 : 0);
+                excelData = XLSX.utils.sheet_to_json(worksheet, { range: skipRange });
+                if (excelData.length > 0) { renderPreview(excelData.slice(0, 5)); document.getElementById('previewArea').style.display = 'block'; }
+            }; reader.readAsArrayBuffer(file);
+        }
+        function renderPreview(data) {
+            const table = document.getElementById('previewTable'); const headers = Object.keys(data[0]);
+            let html = `<tr>${headers.map(h => `<th style="padding:10px; text-align:left; font-size:12px; border-bottom:2px solid #E2C8BA;">${h}</th>`).join('')}</tr>`;
+            data.forEach(row => { html += `<tr>${headers.map(h => `<td style="padding:10px; border-bottom:1px solid #eee; font-size:12px;">${row[h] || ''}</td>`).join('')}</tr>`; });
+            table.innerHTML = html;
+        }
+        async function confirmAndSync() {
+            if (!excelData) return;
+            const actionMap = { 'members': 'batch_update_members', 'orders': 'batch_add_orders', 'points': 'batch_add_points' };
+            showLoading(`同步中...`);
+            try {
+                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: actionMap[currentSyncType], password: PASSWORD, data: excelData }) });
+                const res = await response.json(); hideLoading();
+                if (res.status === 'success') { Swal.fire('成功', '資料已同步至雲端', 'success'); document.getElementById('previewArea').style.display = 'none'; } 
+                else { Swal.fire('失敗', res.message, 'error'); }
+            } catch (e) { hideLoading(); Swal.fire('連線錯誤', '無法傳送至 GAS', 'error'); }
+        }
         function searchMember() {
-            var phone = document.getElementById('searchPhone').value;
-            if(!phone) return;
+            var phone = document.getElementById('searchPhone').value; if(!phone) return;
             showLoading("查詢中...");
             fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'admin_search', password: PASSWORD, phone: phone }) })
-            .then(r => r.json()).then(res => {
-                hideLoading();
-                if(res.status !== 'success') return Swal.fire('查無資料', res.message, 'error');
-                document.getElementById('memName').innerText = res.data.name;
-                document.getElementById('memberResult').style.display = 'block';
-            });
+            .then(r => r.json()).then(res => { hideLoading(); if(res.status !== 'success') return Swal.fire('查無資料', res.message, 'error');
+                document.getElementById('memName').innerText = res.data.name; document.getElementById('memberResult').style.display = 'block'; });
         }
     </script>
 </body>
