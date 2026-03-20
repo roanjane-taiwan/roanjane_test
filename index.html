@@ -323,7 +323,7 @@ header#app-header {
         lucide.createIcons();
 
         // GAS URL
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwxuk1QCDL_nq5ZfbqKE3FYuK5eZ1In4xAOA0kPi846x3CVQhHX5CNZ-JZuVHlISpEz9g/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyZzU4Ksw8oajt3raose3F7WbGNtWrT5NmeQbbylaEbkrussINaV3MNNiCRq5OXc88qjw/exec";
 const LIFF_ID = "2009546971-fV0C9en6"; 
 let lineProfile = null; // 儲存 LINE 資料
 
@@ -346,37 +346,21 @@ async function initLIFF() {
     }
 }
 
-// 修正後的手動登入 (處理第一次綁定)
 async function handleLogin() {
     const phoneInput = document.getElementById('login-phone');
+    const loginBtn = document.getElementById('login-submit');
+    const loginLoader = document.getElementById('login-loader');
+    const loginError = document.getElementById('login-error');
     const phone = phoneInput.value.replace(/\D/g, '');
-    
-    // ... 顯示 Loading ...
 
-    try {
-        const response = await fetch(GAS_URL, {
-            method: "POST",
-            body: JSON.stringify({
-                action: "member_login",
-                phone: phone,
-                lineId: currentLineId // ✨ 關鍵：把抓到的 LINE ID 傳給 GAS 存起來
-            })
-        });
-        const res = await response.json();
-        if (res.status === 'success') {
-            loginSuccessSuccess(res.data); // 封裝原本的登入成功邏輯
-        }
-    } catch (e) {
-        console.error(e);
+    if (phone.length < 9) {
+        alert("請輸入正確的手機號碼");
+        return;
     }
-}
 
-// 修正後的手動登入 (處理第一次綁定)
-async function handleLogin() {
-    const phoneInput = document.getElementById('login-phone');
-    const phone = phoneInput.value.replace(/\D/g, '');
-    
-    // ... 顯示 Loading ...
+    loginBtn.disabled = true;
+    loginLoader.classList.remove('hidden');
+    loginError.style.opacity = "0";
 
     try {
         const response = await fetch(GAS_URL, {
@@ -384,15 +368,32 @@ async function handleLogin() {
             body: JSON.stringify({
                 action: "member_login",
                 phone: phone,
-                lineId: currentLineId // ✨ 關鍵：把抓到的 LINE ID 傳給 GAS 存起來
+                lineId: currentLineId // ✨ 關鍵！一定要加這一行，才會傳給 GAS 存入 T 欄
             })
         });
+
         const res = await response.json();
+
         if (res.status === 'success') {
-            loginSuccessSuccess(res.data); // 封裝原本的登入成功邏輯
+            memberData = res.data;
+            isLoggedIn = true;
+            renderMemberData(res.data); 
+            document.getElementById('view-login').classList.add('view-main-hidden');
+            document.getElementById('view-home').classList.remove('view-main-hidden');
+            document.getElementById('app-header').classList.remove('hidden');
+            document.getElementById('app-nav').classList.remove('hidden');
+            updateNavStyles('home');
+        } else {
+            loginError.innerText = res.message || "登入失敗";
+            loginError.style.opacity = "1";
         }
     } catch (e) {
-        console.error(e);
+        console.error("發生錯誤:", e);
+        loginError.innerText = "連線失敗";
+        loginError.style.opacity = "1";
+    } finally {
+        loginBtn.disabled = false;
+        loginLoader.classList.add('hidden');
     }
 }
 
