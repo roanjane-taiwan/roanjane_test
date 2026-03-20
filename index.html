@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -322,8 +323,105 @@ header#app-header {
         lucide.createIcons();
 
         // GAS URL
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxWSwN7XlVKkpSt1U_FE5h1eLsUknGwYdKBCX49OI-jRLtt02lQYW9ZSoqY62JTWVcLSQ/exec";
-        
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwxuk1QCDL_nq5ZfbqKE3FYuK5eZ1In4xAOA0kPi846x3CVQhHX5CNZ-JZuVHlISpEz9g/exec";
+const LIFF_ID = "2009546971-fV0C9en6"; 
+let lineProfile = null; // 儲存 LINE 資料
+
+let currentLineId = null;
+
+async function initLIFF() {
+    try {
+        await liff.init({ liffId: LIFF_ID });
+        if (liff.isLoggedIn()) {
+            const profile = await liff.getProfile();
+            currentLineId = profile.userId; // 暫存起來，手動登入時要用
+            
+            // 🚀 核心動作：嘗試用 LINE ID 直接登入
+            await autoLoginByLine(currentLineId);
+        } else {
+            liff.login(); 
+        }
+    } catch (e) {
+        console.error("LIFF 出錯:", e);
+    }
+}
+
+// 修正後的手動登入 (處理第一次綁定)
+async function handleLogin() {
+    const phoneInput = document.getElementById('login-phone');
+    const phone = phoneInput.value.replace(/\D/g, '');
+    
+    // ... 顯示 Loading ...
+
+    try {
+        const response = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "member_login",
+                phone: phone,
+                lineId: currentLineId // ✨ 關鍵：把抓到的 LINE ID 傳給 GAS 存起來
+            })
+        });
+        const res = await response.json();
+        if (res.status === 'success') {
+            loginSuccessSuccess(res.data); // 封裝原本的登入成功邏輯
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// 修正後的手動登入 (處理第一次綁定)
+async function handleLogin() {
+    const phoneInput = document.getElementById('login-phone');
+    const phone = phoneInput.value.replace(/\D/g, '');
+    
+    // ... 顯示 Loading ...
+
+    try {
+        const response = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "member_login",
+                phone: phone,
+                lineId: currentLineId // ✨ 關鍵：把抓到的 LINE ID 傳給 GAS 存起來
+            })
+        });
+        const res = await response.json();
+        if (res.status === 'success') {
+            loginSuccessSuccess(res.data); // 封裝原本的登入成功邏輯
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// 新增：LINE 自動登入函式
+async function autoLoginByLine(lineId) {
+    try {
+        const response = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "line_auto_login",
+                lineId: lineId
+            })
+        });
+        const res = await response.json();
+        if (res.status === 'success') {
+            memberData = res.data;
+            isLoggedIn = true;
+            renderMemberData(res.data);
+            document.getElementById('view-login').classList.add('view-main-hidden');
+            document.getElementById('view-home').classList.remove('view-main-hidden');
+            document.getElementById('app-header').classList.remove('hidden');
+            document.getElementById('app-nav').classList.remove('hidden');
+            updateNavStyles('home');
+        }
+    } catch (e) { console.log("此 LINE 尚未綁定過手機"); }
+}
+
+// 在原本的 window.onload 或腳本末端執行
+window.addEventListener('load', initLIFF);
         let memberData = null;
         let currentBaseTab = 'home';
         let isSubViewOpen = false;
