@@ -150,6 +150,9 @@ header#app-header {
     color: #B89B8D !important;
     border-bottom: 2px solid transparent !important;
 }
+        nav#app-nav {
+    padding-bottom: 12px; /* 原本大概是 4px，調高這個數字 */
+}
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
@@ -330,17 +333,33 @@ let lineProfile = null; // 儲存 LINE 資料
 let currentLineId = null;
 
 async function initLIFF() {
+    // ⭐️ 第一步：先檢查有沒有快取，有的話立刻顯示
+    const cache = localStorage.getItem('memberCache');
+    if (cache) {
+        const parsed = JSON.parse(cache);
+        memberData = parsed.data;
+        isLoggedIn = true;
+        renderMemberData(parsed.data);
+        document.getElementById('view-login').style.display = 'none';
+        document.getElementById('view-home').classList.remove('view-main-hidden');
+        document.getElementById('app-header').classList.remove('hidden');
+        document.getElementById('app-nav').classList.remove('hidden');
+        updateNavStyles('home');
+        // 背景靜默更新，用戶不會感覺到
+        silentRefresh(parsed.lineId);
+        return; // 直接結束，不用等 LIFF
+    }
+
+    // 沒快取才走正常流程
+    document.getElementById('view-login').innerHTML = `
+        <div class="flex flex-col items-center gap-3">
+            <div class="loader"></div>
+            <p class="text-brand-brown text-sm font-bold tracking-[0.2em]">LINE 會員登入中</p>
+        </div>
+    `;
+
     try {
-        // ⭐️ liff.init 和 UI 更新同時進行，不要等 init 完才換畫面
-        document.getElementById('view-login').innerHTML = `
-            <div class="flex flex-col items-center gap-3">
-                <div class="loader"></div>
-                <p class="text-brand-brown text-sm font-bold tracking-[0.2em]">LINE 會員登入中</p>
-            </div>
-        `;
-
         await liff.init({ liffId: LIFF_ID });
-
         if (liff.isLoggedIn()) {
             const profile = await liff.getProfile();
             currentLineId = profile.userId;
@@ -350,6 +369,65 @@ async function initLIFF() {
         }
     } catch (e) {
         console.error("LIFF 出錯:", e);
+        location.reload();
+    }
+}
+
+// 背景更新（用戶看不到，靜默執行）
+async function silentRefresh(lineId) {
+    try {
+        await liff.init({ liffId: LIFF_ID });
+        if (!liff.isLoggedIn()) return;
+        const profile = await liff.getProfile();
+        const response = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "line_auto_login", lineId: profile.userId })
+        });
+        const res = await response.json();
+        if (res.status === 'success') {
+            // 靜默更新快取和畫面資料
+            localStorage.setItem('memberCache', JSON.stringify({
+                data: res.data,
+                lineId: profile.userId,
+                savedAt: Date.now()
+            }));
+            memberData = res.data;
+            renderMemberData(res.data); // 畫面靜默刷新
+        }
+    } catch (e) {
+        console.log("背景更新失敗，不影響使用");
+    }
+}
+
+async function autoLoginByLine(lineId) {
+    try {
+        const response = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "line_auto_login", lineId: lineId })
+        });
+        const res = await response.json();
+
+        if (res.status === 'success') {
+            // ⭐️ 存入快取
+            localStorage.setItem('memberCache', JSON.stringify({
+                data: res.data,
+                lineId: lineId,
+                savedAt: Date.now()
+            }));
+
+            memberData = res.data;
+            isLoggedIn = true;
+            renderMemberData(res.data);
+            document.getElementById('view-login').style.display = 'none';
+            document.getElementById('view-home').classList.remove('view-main-hidden');
+            document.getElementById('app-header').classList.remove('hidden');
+            document.getElementById('app-nav').classList.remove('hidden');
+            updateNavStyles('home');
+        } else {
+            location.reload();
+        }
+    } catch (e) {
+        console.error("autoLoginByLine 錯誤:", e);
         location.reload();
     }
 }
@@ -404,17 +482,6 @@ async function handleLogin() {
     }
 }
 
-// 新增：LINE 自動登入函式
-async function autoLoginByLine(lineId) {
-    try {
-        // 顯示一個載入畫面，避免白屏感
-       // initLIFF 和 autoLoginByLine 裡的 innerHTML 都換成這個
-document.getElementById('view-login').innerHTML = `
-    <div class="flex flex-col items-center gap-3">
-        <div class="loader"></div>
-        <p class="text-brand-brown text-sm font-bold tracking-[0.2em]">LINE 會員登入中</p>
-    </div>
-`;
 
         const response = await fetch(GAS_URL, {
             method: "POST",
