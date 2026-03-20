@@ -331,18 +331,29 @@ let currentLineId = null;
 
 async function initLIFF() {
     try {
+        // 先把登入頁換成 loading 畫面，避免閃一下
+        document.getElementById('view-login').innerHTML = `
+            <div class="flex flex-col items-center gap-4">
+                <img src="https://i.postimg.cc/LsQ1w407/RJ-3.jpg" class="w-20 h-auto rounded-xl">
+                <div class="loader"></div>
+                <p class="text-brand-primaryDark text-xs tracking-widest">載入中...</p>
+            </div>
+        `;
+
         await liff.init({ liffId: LIFF_ID });
+
         if (liff.isLoggedIn()) {
             const profile = await liff.getProfile();
-            currentLineId = profile.userId; // 暫存起來，手動登入時要用
-            
-            // 🚀 核心動作：嘗試用 LINE ID 直接登入
+            currentLineId = profile.userId;
+            console.log("✅ LINE ID:", currentLineId);
             await autoLoginByLine(currentLineId);
         } else {
-            liff.login(); 
+            liff.login();
         }
     } catch (e) {
         console.error("LIFF 出錯:", e);
+        // LIFF 失敗就顯示正常登入頁
+        location.reload();
     }
 }
 
@@ -378,7 +389,7 @@ async function handleLogin() {
             memberData = res.data;
             isLoggedIn = true;
             renderMemberData(res.data); 
-            document.getElementById('view-login').classList.add('view-main-hidden');
+            document.getElementById('view-login').style.display = 'none';
             document.getElementById('view-home').classList.remove('view-main-hidden');
             document.getElementById('app-header').classList.remove('hidden');
             document.getElementById('app-nav').classList.remove('hidden');
@@ -399,33 +410,42 @@ async function handleLogin() {
 // 新增：LINE 自動登入函式
 async function autoLoginByLine(lineId) {
     try {
-        console.log("嘗試自動登入, lineId:", lineId); // ← 加這行
-        
+        // 顯示一個載入畫面，避免白屏感
+        document.getElementById('view-login').innerHTML = `
+            <div class="flex flex-col items-center gap-4">
+                <img src="https://i.postimg.cc/LsQ1w407/RJ-3.jpg" class="w-20 h-auto rounded-xl">
+                <div class="loader"></div>
+                <p class="text-brand-primaryDark text-xs tracking-widest">自動登入中...</p>
+            </div>
+        `;
+
         const response = await fetch(GAS_URL, {
             method: "POST",
-            body: JSON.stringify({
-                action: "line_auto_login",
-                lineId: lineId
-            })
+            body: JSON.stringify({ action: "line_auto_login", lineId: lineId })
         });
         const res = await response.json();
         
-        console.log("自動登入結果:", res); // ← 加這行
-        
+        console.log("自動登入結果:", res);
+
         if (res.status === 'success') {
             memberData = res.data;
             isLoggedIn = true;
             renderMemberData(res.data);
-            document.getElementById('view-login').classList.add('view-main-hidden');
+
+            // ⭐️ 關鍵修正：直接設 display:none，不只是 opacity
+            document.getElementById('view-login').style.display = 'none';
             document.getElementById('view-home').classList.remove('view-main-hidden');
             document.getElementById('app-header').classList.remove('hidden');
             document.getElementById('app-nav').classList.remove('hidden');
             updateNavStyles('home');
         } else {
-            console.log("自動登入失敗原因:", res.message); // ← 加這行
+            // 自動登入失敗，恢復正常登入頁面（重新載入頁面）
+            console.log("尚未綁定，顯示登入頁");
+            location.reload(); // 重新載入回復正常登入頁
         }
-    } catch (e) { 
-        console.error("autoLoginByLine 錯誤:", e); 
+    } catch (e) {
+        console.error("autoLoginByLine 錯誤:", e);
+        location.reload();
     }
 }
 
