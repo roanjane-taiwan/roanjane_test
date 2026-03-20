@@ -331,12 +331,11 @@ let currentLineId = null;
 
 async function initLIFF() {
     try {
-        // 先把登入頁換成 loading 畫面，避免閃一下
+        // ⭐️ liff.init 和 UI 更新同時進行，不要等 init 完才換畫面
         document.getElementById('view-login').innerHTML = `
-            <div class="flex flex-col items-center gap-4">
-                <img src="https://i.postimg.cc/LsQ1w407/RJ-3.jpg" class="w-20 h-auto rounded-xl">
+            <div class="flex flex-col items-center gap-3">
                 <div class="loader"></div>
-                <p class="text-brand-primaryDark text-xs tracking-widest">載入中...</p>
+                <p class="text-brand-brown text-sm font-bold tracking-[0.2em]">LINE 會員登入中</p>
             </div>
         `;
 
@@ -345,14 +344,12 @@ async function initLIFF() {
         if (liff.isLoggedIn()) {
             const profile = await liff.getProfile();
             currentLineId = profile.userId;
-            console.log("✅ LINE ID:", currentLineId);
             await autoLoginByLine(currentLineId);
         } else {
             liff.login();
         }
     } catch (e) {
         console.error("LIFF 出錯:", e);
-        // LIFF 失敗就顯示正常登入頁
         location.reload();
     }
 }
@@ -411,13 +408,13 @@ async function handleLogin() {
 async function autoLoginByLine(lineId) {
     try {
         // 顯示一個載入畫面，避免白屏感
-        document.getElementById('view-login').innerHTML = `
-            <div class="flex flex-col items-center gap-4">
-                <img src="https://i.postimg.cc/LsQ1w407/RJ-3.jpg" class="w-20 h-auto rounded-xl">
-                <div class="loader"></div>
-                <p class="text-brand-primaryDark text-xs tracking-widest">自動登入中...</p>
-            </div>
-        `;
+       // initLIFF 和 autoLoginByLine 裡的 innerHTML 都換成這個
+document.getElementById('view-login').innerHTML = `
+    <div class="flex flex-col items-center gap-3">
+        <div class="loader"></div>
+        <p class="text-brand-brown text-sm font-bold tracking-[0.2em]">LINE 會員登入中</p>
+    </div>
+`;
 
         const response = await fetch(GAS_URL, {
             method: "POST",
