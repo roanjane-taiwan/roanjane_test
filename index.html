@@ -368,7 +368,7 @@ async function handleLogin() {
             body: JSON.stringify({
                 action: "member_login",
                 phone: phone,
-                lineId: currentLineId // ✨ 關鍵！一定要加這一行，才會傳給 GAS 存入 T 欄
+                lineId: currentLineId // ⭐️ 就是這行！把抓到的 LINE ID 傳給 GAS
             })
         });
 
@@ -388,7 +388,6 @@ async function handleLogin() {
             loginError.style.opacity = "1";
         }
     } catch (e) {
-        console.error("發生錯誤:", e);
         loginError.innerText = "連線失敗";
         loginError.style.opacity = "1";
     } finally {
