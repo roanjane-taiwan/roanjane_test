@@ -323,7 +323,7 @@ header#app-header {
         lucide.createIcons();
 
         // GAS URL
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyZzU4Ksw8oajt3raose3F7WbGNtWrT5NmeQbbylaEbkrussINaV3MNNiCRq5OXc88qjw/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzQE9iAqdgBM5ITnS-oXxIrgZasTS5tQO54kpnpVaZcjyOryKIRt2scMqAcLtU6Bb6M9g/exec";
 const LIFF_ID = "2009546971-fV0C9en6"; 
 let lineProfile = null; // 儲存 LINE 資料
 
@@ -433,67 +433,6 @@ window.addEventListener('load', initLIFF);
         const appHeader = document.getElementById('app-header');
         const appNav = document.getElementById('app-nav');
 
-        async function handleLogin() {
-    const phoneInput = document.getElementById('login-phone');
-    const loginBtn = document.getElementById('login-submit');
-    const loginLoader = document.getElementById('login-loader');
-    const loginError = document.getElementById('login-error');
-    const phone = phoneInput.value.replace(/\D/g, ''); // 確保只取數字
-
-    if (phone.length < 9) {
-        alert("請輸入正確的手機號碼");
-        return;
-    }
-
-    // 1. 顯示 Loading 狀態
-    loginBtn.disabled = true;
-    loginLoader.classList.remove('hidden');
-    loginError.style.opacity = "0";
-
-    try {
-        // 使用你上面定義的 GAS_URL 變數
-        const response = await fetch(GAS_URL, {
-            method: "POST",
-            body: JSON.stringify({
-                action: "member_login",
-                phone: phone
-            })
-        });
-
-        const text = await response.text();
-        const res = JSON.parse(text);
-
-        if (res.status === 'success') {
-            // 2. 登入成功處理
-            memberData = res.data;
-            isLoggedIn = true;
-
-            // 執行渲染
-            renderMemberData(res.data); 
-
-            // 3. 畫面切換：隱藏登入頁，顯示 Header 和 Nav
-            document.getElementById('view-login').classList.add('view-main-hidden');
-            document.getElementById('view-home').classList.remove('view-main-hidden');
-            document.getElementById('app-header').classList.remove('hidden');
-            document.getElementById('app-nav').classList.remove('hidden');
-            
-            // 初始導航樣式
-            updateNavStyles('home');
-        } else {
-            // 登入失敗
-            loginError.innerText = res.message || "登入失敗";
-            loginError.style.opacity = "1";
-        }
-    } catch (e) {
-        console.error("發生錯誤:", e);
-        loginError.innerText = "連線失敗，請檢查網路或 GAS 權限";
-        loginError.style.opacity = "1";
-    } finally {
-        // 4. 結束 Loading 狀態
-        loginBtn.disabled = false;
-        loginLoader.classList.add('hidden');
-    }
-}
 
 function renderMemberData(data) {
     // 1. 執行原本的首頁卡片與點數渲染
