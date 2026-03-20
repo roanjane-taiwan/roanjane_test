@@ -40,14 +40,14 @@
             -webkit-tap-highlight-color: transparent;
             color: #4A4138;
             overflow: hidden;
-            font-size: 16px;
+            
         }
         /* Header 縮小優化 */
 header#app-header {
     /* 原本 pt-12 (48px) 改為 pt-8 (32px), h-88 改為 h-72 */
-    padding-top: 32px; 
+    padding-top: 8px; 
     padding-bottom: 8px;
-    height: 72px; 
+    height: 56px; 
     display: flex;
     align-items: center;
 }
@@ -58,20 +58,6 @@ header#app-header {
     transform: translateY(-10%);
 }
 
-/* 下方導航列文字強制 16px */
-.nav-text {
-    font-size: 16px !important;
-}
-
-/* 內容區段的文字規則 */
-.view-section p {
-    font-size: 16px;
-}
-
-/* 輔助性小字強制限制在 10px 以上 */
-.text-min-10 {
-    font-size: 10px !important;
-}
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -154,6 +140,15 @@ header#app-header {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .tab-active {
+    color: #4A4138 !important;
+    border-bottom: 2px solid #4A4138 !important;
+    font-weight: 700 !important;
+}
+.tab-inactive {
+    color: #B89B8D !important;
+    border-bottom: 2px solid transparent !important;
+}
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
@@ -217,11 +212,12 @@ header#app-header {
 
             <!-- ====== 2. 我的優惠券 ====== -->
             <section id="view-coupons" class="view-section view-main-hidden overflow-y-auto no-scrollbar pb-10 px-5 pt-4">
-                <div class="flex gap-6 mb-6 px-2 border-b border-brand-primary/30">
-                    <button class="pb-3 text-sm text-brand-brown border-b-2 border-brand-brown font-bold tracking-widest">可使用</button>
-                    <button class="pb-3 text-sm text-brand-primaryDark tracking-widest">已失效</button>
-                </div>
+                <div id="coupon-tabs" class="flex gap-6 mb-6 px-2 border-b border-brand-primary/30">
+    <button onclick="switchCouponTab('valid', this)" class="pb-3 text-[16px] tab-active">可使用</button>
+    <button onclick="switchCouponTab('expired', this)" class="pb-3 text-[16px] tab-inactive">已失效</button>
+</div>
                 <div id="coupons-list" class="space-y-4"></div>
+                
             </section>
 
             <!-- ====== 3. 消費紀錄 ====== -->
@@ -326,7 +322,7 @@ header#app-header {
         lucide.createIcons();
 
         // GAS URL
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwcbn2BPkm6xAq4ge08Pz7mq06yTs97wf89YWS4Pugr-qpY8Bo-qFe-lf4gySVFtXOhww/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxWSwN7XlVKkpSt1U_FE5h1eLsUknGwYdKBCX49OI-jRLtt02lQYW9ZSoqY62JTWVcLSQ/exec";
         
         let memberData = null;
         let currentBaseTab = 'home';
@@ -445,49 +441,85 @@ function renderMemberData(data) {
 
     const homeContent = document.getElementById('home-content');
     const levelName = memberData.isVip ? "VIP 會員" : "一般會員";
-    // 渲染優惠券列表
-    const couponsList = document.getElementById('coupons-list');
-    
-    // 檢查是否有優惠券 (處理 GAS 回傳可能是空字串 "" 或空陣列 [] 的情況)
-    const hasCoupons = memberData.coupons && memberData.coupons.length > 0 && memberData.coupons !== "";
+    // 在 renderAppData 函式內更新
+const couponsList = document.getElementById('coupons-list');
+const rawCoupons = String(memberData.coupons || "").trim();
+// 隱藏 Tabs 區塊
+    const tabs = document.getElementById('coupon-tabs');
+    if (tabs) tabs.style.display = 'none';
+if (rawCoupons !== "") {
+    const couponArray = rawCoupons.split(',').filter(c => c.trim() !== "");
+    couponsList.innerHTML = couponArray.map(couponRaw => {
+        const parts = couponRaw.split('|').map(p => p.trim());
+        const name = parts[0] || "專屬優惠券";
+        const imgUrl = parts[1] || "";
+        const expiry = parts[2] || "無期限";
+        const terms = parts[3] || "";
 
-    if (hasCoupons) {
-        // 如果有優惠券，將字串解析成陣列（假設你 GAS 傳來的是逗號分隔字串，或者已經是陣列）
-        // 如果 GAS 傳來的是 array 就直接 map，如果是 string 則先 split
-        const couponArray = Array.isArray(memberData.coupons) 
-            ? memberData.coupons 
-            : memberData.coupons.split(',').filter(c => c.trim() !== "");
-
-        couponsList.innerHTML = couponArray.map(couponRaw => {
-            // 解析優惠券資訊 (假設格式為: 名稱|圖片|到期日|條款)
-            const parts = couponRaw.split('|');
-            const name = parts[0] || "專屬優惠券";
-            const expiry = parts[2] || "無期限";
-            const value = name.match(/\d+/) ? name.match(/\d+/)[0] : "折"; // 簡單抓取數字當作大標
-
-            return `
-                <div class="bg-brand-card rounded-2xl p-4 shadow-sm border border-brand-primary/40 flex gap-4 relative overflow-hidden">
-                    <div class="w-[72px] flex flex-col items-center justify-center border-r border-dashed border-brand-primary/50 pr-4">
-                        <span class="text-2xl font-bold text-brand-primaryDark">${value}</span>
-                        <span class="text-[10px] text-brand-primaryDark font-bold mt-1">優惠</span>
-                    </div>
-                    <div class="flex-1 py-1">
-                        <h4 class="text-sm font-bold text-brand-brown mb-1">${name}</h4>
-                        <p class="text-[10px] text-brand-primaryDark mb-3">有效期限：${expiry}</p>
-                        <button class="text-[10px] bg-brand-brown text-white px-4 py-1.5 rounded-full font-bold shadow-sm">立即使用</button>
-                    </div>
+        return `
+            <div class="bg-white rounded-[2rem] p-5 shadow-sm border border-brand-primary/20 flex gap-5 relative overflow-hidden group active:scale-[0.98] transition-all">
+                <div class="w-24 h-24 bg-brand-surface rounded-2xl overflow-hidden shrink-0 shadow-inner">
+                    ${imgUrl ? 
+                        `<img src="${imgUrl}" class="w-full h-full object-cover">` : 
+                        `<div class="w-full h-full flex items-center justify-center text-brand-primaryDark opacity-30"><i data-lucide="ticket" class="w-10 h-10"></i></div>`
+                    }
                 </div>
-            `;
-        }).join('');
-    } else {
-        // 🌟 重點：如果沒有優惠券，顯示提示文字
-        couponsList.innerHTML = `
-            <div class="flex flex-col items-center justify-center py-20 opacity-40">
-                <i data-lucide="ticket" class="w-12 h-12 mb-4 text-brand-primaryDark"></i>
-                <p class="text-xs text-brand-primaryDark tracking-[0.2em]">目前沒有可使用的優惠券</p>
+                
+                <div class="flex-1 flex flex-col justify-between py-0.5">
+                    <div>
+                        <h4 class="text-[16px] font-bold text-brand-brown leading-tight mb-2">${name}</h4>
+                        <div class="space-y-1">
+                            <p class="text-[12px] text-brand-primaryDark flex items-center gap-1">
+                                <i data-lucide="calendar" class="w-3 h-3"></i> 期限至 ${expiry}
+                            </p>
+                            <p class="text-[10px] text-brand-primaryDark/60 leading-relaxed">${terms}</p>
+                        </div>
+                    </div>
+                    
+                    <button onclick="openRedeemModal('${couponRaw}')" class="mt-3 w-full bg-brand-brown text-white text-[14px] font-bold py-2.5 rounded-xl shadow-md active:bg-brand-brown/90 transition-colors">
+    立即核銷使用
+</button>
+                </div>
+                
+                <div class="absolute -right-2 top-0 bottom-0 w-4 opacity-10" style="background-image: radial-gradient(#4A4138 2px, transparent 2px); background-size: 8px 8px;"></div>
             </div>
         `;
+    }).join('');
+} else {
+    showNoCoupon(couponsList);
+}
+
+// --- 新增：核銷按鈕邏輯 ---
+async function useCoupon(couponData) {
+    const couponName = couponData.split('|')[0];
+    if (!confirm(`確定要核銷「${couponName}」嗎？\n請在櫃檯人員面前操作，核銷後無法復原。`)) return;
+
+    // 這裡可以呼叫你的 GAS action: "redeem_coupon_front"
+    try {
+        const response = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "redeem_coupon_front",
+                phone: memberData.phone,
+                couponData: couponData
+            })
+        });
+        const res = await response.json();
+        if (res.status === 'success') {
+            alert("核銷成功！請告知櫃員。");
+            handleLogin(); // 重新登入以刷新資料
+        } else {
+            alert("核銷失敗：" + res.message);
+        }
+    } catch (e) {
+        alert("網路連線失敗");
     }
+}
+
+    // --- (其餘渲染代碼如 homeStats 保持不變) ---
+
+
+
     // --- VIP 進度計算邏輯 ---
     let vipProgressHtml = '';
     if (!memberData.isVip) {
@@ -526,20 +558,21 @@ function renderMemberData(data) {
     }
 
     homeContent.innerHTML = `
-        <div class="bg-brand-card rounded-[2rem] overflow-hidden shadow-card mb-4 border border-brand-primary/30">
-            <div class="h-40 w-full relative">
+        <div class="bg-brand-card rounded-[2rem] overflow-hidden shadow-card mb-6 border border-brand-primary/30">
+            <div class="h-44 w-full relative">
                 <img src="https://i.postimg.cc/nVXzcb3j/1001.jpg" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent"></div>
             </div>
-            <div class="px-6 pb-6 -mt-6 relative z-10 text-center">
-                <span class="inline-block px-3 py-1 bg-brand-primary/20 text-brand-primaryDark text-[12px] font-bold tracking-[0.2em] rounded-full mb-3 uppercase">${levelName}</span>
-                <h2 class="text-[24px] font-bold text-brand-brown mb-1 tracking-widest">${memberData.name}</h2>
-                <p class="text-brand-primaryDark text-[16px] mb-4 tracking-widest font-light">${memberData.phone}</p>
+            <div class="px-6 pb-8 -mt-6 relative z-10 text-center">
+                <span class="inline-block px-3 py-1 bg-brand-primary/20 text-brand-primaryDark text-[10px] font-bold tracking-[0.2em] rounded-full mb-3 uppercase">${levelName}</span>
+                <h2 class="text-2xl font-bold text-brand-brown mb-1 tracking-widest">${memberData.name}</h2>
+                <p class="text-brand-primaryDark text-xs mb-4 tracking-widest font-light">${memberData.phone}</p>
                 
                 <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm mb-2">
                     <div class="barcode mb-2"></div>
-                    <p class="text-[12px] text-gray-400 tracking-[0.3em] font-mono">${memberData.phone}</p>
+                    <p class="text-[10px] text-gray-400 tracking-[0.3em] font-mono">${memberData.phone}</p>
                 </div>
+
                 ${vipProgressHtml}
             </div>
         </div>
@@ -598,7 +631,97 @@ function renderMemberData(data) {
 
     lucide.createIcons();
 }
+function showNoCoupon(container) {
+    container.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-20 opacity-40">
+            <i data-lucide="ticket" class="w-12 h-12 mb-4 text-brand-primaryDark"></i>
+            <p class="text-[16px] text-brand-primaryDark tracking-[0.2em]">目前沒有可使用的優惠券</p>
+        </div>
+    `;
+    lucide.createIcons();
+}
+let currentCouponRaw = ""; // 暫存目前要核銷的優惠券資料
 
+// 3. 修改後的 openRedeemModal
+function openRedeemModal(couponRaw) {
+    currentCouponRaw = couponRaw;
+    const parts = couponRaw.split('|').map(p => p.trim());
+    const name = parts[0] || "專屬優惠券";
+    const imgUrl = parts[1] || "";
+
+    document.getElementById('modal-coupon-info').innerHTML = `
+        <div class="w-12 h-12 rounded-lg overflow-hidden bg-white shrink-0 shadow-sm border border-brand-primary/10">
+            ${imgUrl ? `<img src="${imgUrl}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-brand-primaryDark/30"><i data-lucide="ticket" class="w-5 h-5"></i></div>`}
+        </div>
+        <div class="text-left">
+            <p class="text-[15px] text-brand-brown font-bold">${name}</p>
+            <p class="text-[11px] text-brand-primaryDark uppercase tracking-wider">Store Confirmation Required</p>
+        </div>
+    `;
+    
+    const pwdInput = document.getElementById('redeem-pwd');
+    pwdInput.value = ""; // 清空輸入
+    document.getElementById('redeem-modal').classList.remove('hidden');
+    
+    // 自動聚焦輸入框 (選用，增加體驗)
+    setTimeout(() => pwdInput.focus(), 500);
+    
+    lucide.createIcons();
+}
+
+function closeRedeemModal() {
+    document.getElementById('redeem-modal').classList.add('hidden');
+}
+
+// 2. 店員輸入密碼後點擊確認
+async function confirmRedeem() {
+    const pwdInput = document.getElementById('redeem-pwd');
+    const btnText = document.getElementById('redeem-btn-text');
+    const loader = document.getElementById('redeem-loader');
+
+    // 驗證店員密碼
+    if (pwdInput.value !== "8888") {
+        alert("密碼錯誤，請洽店員輸入正確核銷密碼");
+        pwdInput.classList.add('border-red-400');
+        return;
+    }
+
+    // 開始核銷流程
+    pwdInput.disabled = true;
+    btnText.innerText = "核銷中...";
+    loader.classList.remove('hidden');
+
+    try {
+        const response = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "redeem_coupon_front",
+                phone: memberData.phone,
+                couponData: currentCouponRaw
+            })
+        });
+        const res = await response.json();
+
+        if (res.status === 'success') {
+            alert("核銷成功！此優惠券已失效。");
+            closeRedeemModal();
+            handleLogin(); // 重新登入刷新資料，優惠券就會消失
+        } else {
+            alert("核銷失敗：" + res.message);
+        }
+    } catch (e) {
+        console.error(e);
+        alert("網路連線失敗，請重試");
+    } finally {
+        pwdInput.disabled = false;
+        btnText.innerText = "確認核銷";
+        loader.classList.add('hidden');
+    }
+}
+
+// 3. 修改渲染邏輯中按鈕的 onclick
+// 請在 renderAppData 渲染優惠券卡片時，將按鈕改為：
+// <button onclick="openRedeemModal('${couponRaw}')" ...>
        function viewOrderDetail(index) {
     const ord = memberData.purchaseHistory[index];
     const detailView = document.getElementById('order-detail-content');
@@ -613,37 +736,45 @@ function renderMemberData(data) {
     const discount = rawTotal - actualPaid;
 
     detailView.innerHTML = `
-        <div class="bg-brand-surface rounded-3xl p-6 mb-5 leading-relaxed">
+        <div class="bg-brand-surface rounded-3xl p-6 mb-5 text-[13px] leading-relaxed">
             <div class="flex justify-between mb-3 pb-3 border-b border-brand-primary/20">
-                <span class="text-brand-primaryDark font-bold text-[16px] tracking-widest uppercase">訂單明細</span>
-                <span class="text-brand-brown font-bold text-[16px] tracking-wider">${ord.orderId}</span>
+                <span class="text-brand-primaryDark font-bold tracking-widest uppercase">訂單明細</span>
+                <span class="text-brand-brown font-bold tracking-wider">${ord.orderId}</span>
             </div>
             <div class="space-y-2">
-                <div class="flex justify-between text-[16px]"><span class="text-brand-primaryDark">訂單來源</span><span class="text-brand-brown">${ord.store}</span></div>
-                <div class="flex justify-between text-[16px]"><span class="text-brand-primaryDark">成立日期</span><span class="text-brand-brown">${ord.date}</span></div>
+                <div class="flex justify-between"><span class="text-brand-primaryDark">訂單來源</span><span class="text-brand-brown">${ord.store}</span></div>
+                <div class="flex justify-between"><span class="text-brand-primaryDark">成立日期</span><span class="text-brand-brown">${ord.date}</span></div>
             </div>
         </div>
 
         <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden mb-6">
             <div class="divide-y divide-gray-50">
-                ${ord.items.map(item => `
-                    <div class="p-5 flex gap-4 items-center">
-                        <div class="w-16 h-16 bg-brand-surface rounded-2xl flex items-center justify-center overflow-hidden shrink-0">
-                             ${item.img ? `<img src="${item.img}" class="w-full h-full object-cover">` : `<i data-lucide="package" class="w-7 h-7 opacity-30"></i>`}
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <h4 class="text-[16px] font-bold text-brand-brown leading-snug mb-1">${item.name}</h4>
-                            <p class="text-[12px] text-brand-primaryDark flex flex-wrap gap-x-2">
-                                ${item.spec ? `<span>規格: ${item.spec}</span>` : ''} 
-                                ${item.sku ? `<span>貨號: ${item.sku}</span>` : ''}
-                            </p>
-                            <div class="flex justify-between items-center mt-2">
-                                <span class="text-[12px] bg-brand-surface px-2 py-0.5 rounded text-brand-brown font-bold">數量: ${item.qty}</span>
-                                <span class="text-[16px] font-bold text-brand-brown">$${Number(item.price).toLocaleString()}</span>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
+                
+${ord.items.map(item => `
+    <div class="p-5 flex gap-4 items-center">
+        <div class="w-16 h-16 bg-brand-surface rounded-2xl flex items-center justify-center overflow-hidden shrink-0">
+            ${item.img ? 
+                `<img src="${item.img}" class="w-full h-full object-cover">` : 
+                `<i data-lucide="package" class="w-7 h-7 text-brand-primaryDark opacity-30"></i>`
+            }
+        </div>
+        
+        <div class="flex-1 min-w-0">
+            <h4 class="text-sm font-bold text-brand-brown leading-snug mb-1">${item.name}</h4>
+            
+            ${(item.spec || item.sku) ? `
+            <p class="text-[10px] text-brand-primaryDark flex flex-wrap gap-x-2">
+                ${item.spec ? `<span>規格: ${item.spec}</span>` : ''} 
+                ${item.sku ? `<span>貨號: ${item.sku}</span>` : ''}
+            </p>` : ''}
+
+            <div class="flex justify-between items-center mt-2">
+                <span class="text-[10px] bg-brand-surface px-2 py-0.5 rounded text-brand-brown font-bold">數量: ${item.qty}</span>
+                <span class="text-sm font-bold text-brand-brown">$${Number(item.price).toLocaleString()}</span>
+            </div>
+        </div>
+    </div>
+`).join('')}
             </div>
         </div>
 
@@ -765,6 +896,89 @@ function renderMemberData(data) {
                 }
             });
         }
+        function switchCouponTab(type, btn) {
+    // 1. 切換按鈕樣式
+    const buttons = document.querySelectorAll('#coupon-tabs button');
+    buttons.forEach(b => {
+        b.classList.remove('tab-active');
+        b.classList.add('tab-inactive');
+    });
+    btn.classList.add('tab-active');
+    btn.classList.remove('tab-inactive');
+
+    // 2. 切換內容 (這裡先做簡單邏輯，已失效通常顯示空白或歷史紀錄)
+    const list = document.getElementById('coupons-list');
+    if (type === 'expired') {
+        list.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-20 opacity-30">
+                <i data-lucide="history" class="w-12 h-12 mb-4"></i>
+                <p class="text-[16px]">尚無已失效的紀錄</p>
+            </div>
+        `;
+    } else {
+        renderMemberData(memberData); // 回到正常渲染
+    }
+    lucide.createIcons();
+}
     </script>
+   <div id="redeem-modal" class="fixed inset-0 z-[100] hidden items-end">
+    <div class="absolute inset-0 bg-brand-brown/40 backdrop-blur-md" onclick="closeRedeemModal()"></div>
+    
+    <div class="relative w-full bg-white rounded-t-[2.5rem] shadow-2xl p-8 animate-modal">
+        <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-8"></div>
+        
+        <div class="text-center mb-6">
+            <h3 class="text-[20px] font-bold text-brand-brown mb-2">確認核銷優惠券</h3>
+            <p class="text-brand-primaryDark text-[13px]">請將手機交由店員操作</p>
+        </div>
+
+        <div id="modal-coupon-info" class="mb-8 border border-brand-primary/30 rounded-2xl p-4 flex items-center gap-4 bg-brand-bg/50">
+            </div>
+
+        <div class="space-y-6">
+            <input id="redeem-pwd" type="password" pattern="\d*" inputmode="numeric" maxlength="4" placeholder="請輸入 4 位核銷密碼" 
+                   class="w-full bg-brand-surface border-2 border-transparent focus:border-brand-primary rounded-2xl px-6 py-4 text-center text-xl tracking-[0.5em] placeholder:text-[14px] placeholder:tracking-normal placeholder:text-brand-primaryDark/60 transition-all outline-none">
+            
+            <div class="flex gap-3 items-center pt-2">
+                <button onclick="closeRedeemModal()" class="flex-1 py-4 text-brand-primaryDark font-bold text-[15px]">取消</button>
+                <button onclick="confirmRedeem()" id="redeem-btn" class="flex-[2] bg-brand-brown text-white font-bold py-4 rounded-2xl shadow-xl active:scale-[0.98] transition-all text-[15px] flex items-center justify-center gap-2">
+                    <span id="redeem-btn-text">確認核銷</span>
+                    <div id="redeem-loader" class="loader hidden !border-white !border-t-transparent !w-4 !h-4"></div>
+                </button>
+            </div>
+            <p class="text-center text-[11px] text-red-400/80">※ 核銷後此優惠券將消失且無法復原</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes slide-up {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+    .animate-slide-up { animation: slide-up 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    /* 密碼圓點動畫 */
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #E2C8BA;
+    transition: all 0.2s;
+}
+.dot.active {
+    background-color: #4A4138;
+    transform: scale(1.2);
+}
+
+/* Modal 動畫修正 */
+#redeem-modal.hidden { display: none; }
+#redeem-modal:not(.hidden) { display: flex; }
+
+@keyframes slide-up-custom {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+.animate-modal { animation: slide-up-custom 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+</style>
 </body>
 </html>
